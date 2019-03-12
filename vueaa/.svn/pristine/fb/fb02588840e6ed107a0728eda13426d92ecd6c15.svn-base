@@ -1,0 +1,37 @@
+<template>
+  <div>
+    <bokeke :defaultMsg=defaultMsg :config=config ref="bokeke"></bokeke>
+  </div>
+
+
+</template>
+
+<script>
+  import bokeke from "./bokeke.vue"
+  export default {
+    name: 'kongbaitiaozhuang',
+    data () {
+      return {
+        defaultMsg:'',
+        config:{
+          initialFrameWidth:1038,
+          initialFrameHeight:500
+        },
+      }
+    },
+    methods:{
+      getUEContent() {
+        let content = this.$refs.ue.getUEContent();
+        this.$notify({
+          title: '获取成功，可在控制台查看',
+          message: content,
+          type: 'success'
+        });
+        console.log(content)
+      }
+    },
+    components: {
+      bokeke
+    }
+  }
+</script>

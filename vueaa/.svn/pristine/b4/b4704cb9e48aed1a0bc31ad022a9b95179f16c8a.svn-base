@@ -1,0 +1,135 @@
+/**
+ * Created by Administrator on 2019/2/22.
+ */
+const DBCONFIG=require("../config/dbconfig");
+const PERPAGE=5;
+let goodslistCon={
+    list(req,resp){
+       //console.log(req.query);
+        let name=req.query.searchData;
+        const str = name;
+        const searchData = JSON.parse(str);
+            name=searchData.name;
+        let price=searchData.price;
+        let type=searchData.type;
+        let status=searchData.status;
+        let newData={};
+        let sql="SELECT g_id,g_name,decoration,price,g_status,goodsSrc FROM goods WHERE 1=1 ";
+        let params=[];
+        if(name!=undefined&&name!=""){
+            sql+="and g_name LIKE ? ";
+            params.push("%"+name+"%");
+        }
+        if(price!=undefined&&price!=""){
+            sql+="and price LIKE ? ";
+            params.push("%"+price+"%")
+        }
+        if(type!=undefined&&type!=""){
+            sql+="and decoration LIKE ? ";
+            params.push("%"+type+"%")
+        }
+        if(status!=undefined&&status!=""){
+            //console.log(status)
+            if(status=="销售中"){   //有相同的
+                status=0;
+                sql+="and g_status= ? ";
+                params.push(status)
+            }else if(status=="已下架"){
+                status=1;
+                sql+="and g_status= ? ";
+                params.push(status)
+            }
+
+        }
+        sql+="limit ?,?";
+        params.push((req.query.page-1)*PERPAGE);
+        params.push(PERPAGE);
+       // console.log("最终的sql---"+sql);
+        //console.log(params);
+        DBCONFIG.connect(sql,params,(err,data)=>{
+            if(!err){
+                let params1=[];
+                let sql1="SELECT COUNT(*) as mytotal FROM goods WHERE 1=1 ";
+                if(name!=undefined&&name!=""){
+                    sql1+="and g_name LIKE ? ";
+                    params1.push("%"+name+"%");
+                }
+                if(price!=undefined&&price!=""){
+                    sql1+="and price LIKE ? ";
+                    params1.push("%"+price+"%")
+                }
+                if(type!=undefined&&type!=""){
+                    sql1+="and decoration LIKE ? ";
+                    params1.push("%"+type+"%")
+                }
+                if(status!=undefined&&status!=""){
+                    console.log(status)
+                    if(status==0){   //有相同的
+                        sql1+="and g_status= ? ";
+                        params1.push(status)
+                    }else if(status==1){
+                        sql1+="and g_status= ? ";
+                        params1.push(status)
+                    }
+
+                }
+                DBCONFIG.connect(sql1,params1,(err,data1)=>{
+                        if(!err){
+                            let result=Math.ceil(data1[0].mytotal/PERPAGE);   //计算分页数向上取整
+                            console.log(data1[0].mytotal);
+                            newData={
+                                data:data,
+                                total:result
+                            };
+                               resp.send(newData)
+                        }
+                })
+            }
+        })
+
+    },
+    updateData(req,resp){
+        console.log(req.query);
+        let params = [];
+        if (typeof req.query.value == "string") {
+            let str = req.query.value;
+            let newstr = JSON.parse(str);
+            if (newstr.g_status == "销售中") {
+                newstr.g_status = 1;
+                params.push(newstr.g_status)
+            } else if (newstr.g_status == "已下架") {
+                newstr.g_status = 0;
+                params.push(newstr.g_status)
+            }
+            params.push(newstr.g_id);
+            DBCONFIG.connect("UPDATE goods SET g_status = ? WHERE g_id= ? ", params, (err, data) => {
+                resp.send("操作成功")
+            })
+        } else {
+            let sql = "UPDATE goods SET g_status = ? WHERE 1=1 and g_id in(";
+            let len = req.query.value.length;
+            for (var i = 0; i < len; i++) {
+                var val = req.query.value[i];
+                var newVal = JSON.parse(val);
+                console.log(newVal);
+                sql += "?,";
+                params.push(newVal.g_id)
+            }
+            if (newVal.g_status == "销售中") {
+                newVal.g_status = 1;
+                params.unshift(newVal.g_status)
+            }
+            if (newVal.g_status == "已下架") {
+                newVal.g_status = 0;
+                params.unshift(newVal.g_status)
+            }
+            sql += 0 + ")";
+            DBCONFIG.connect(sql, params, (err, data) => {
+                resp.send("操作成功")
+            })
+        }
+
+        // console.log(sql,params);
+    }
+};
+module.exports=goodslistCon;

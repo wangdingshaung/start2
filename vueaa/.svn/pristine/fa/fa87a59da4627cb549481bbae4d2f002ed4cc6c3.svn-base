@@ -1,0 +1,25 @@
+/**
+ * Created by Administrator on 2019/2/21 0021.
+ */
+//总路由
+const EXPRESS=require("express");
+const ROUTER=EXPRESS.Router();
+const GREATEGOODS=require("./cl");
+const USERSHOW=require("./laowang");
+//引入博客的路由
+// const BOKE=require("./bokeRouter");
+
+
+ROUTER.use("/createGoods",GREATEGOODS);
+// 博客
+
+
+//会员管理
+ROUTER.use("/user",USERSHOW);
+
+
+
+
+
+
+module.exports=ROUTER;

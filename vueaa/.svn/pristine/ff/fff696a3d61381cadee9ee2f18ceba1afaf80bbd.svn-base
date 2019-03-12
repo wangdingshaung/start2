@@ -1,0 +1,44 @@
+<template>
+  <div class="xurun" style="width: 100%">
+    <!--<router-link :to="{path:'/xurun/fuwenben'}"><el-button type="primary" icon="el-icon-edit">新增博客</el-button></router-link>-->
+      <bokeliebiao></bokeliebiao>
+  </div>
+</template>
+
+<script>
+  import fenyezujian from "./fenyezujian.vue"
+  import bokeliebiao from "./bokeliebiao.vue"
+  import bokeke from "./bokeke.vue"
+
+  export default {
+    inject:['reload'],
+    name: 'xurun',
+    data () {
+
+      return {
+            defaultMsg:'内容',
+            config:{
+                initialFrameWidth:1038,
+                initialFrameHeight:350
+            },
+      }
+    },
+    methods:{
+      getUEContent() {
+        let content = this.$refs.ue.getUEContent();
+        this.$notify({
+          title: '获取成功，可在控制台查看',
+          message: content,
+          type: 'success'
+        });
+        console.log(content)
+      }
+    },
+    components: {
+      bokeliebiao,
+      bokeke,
+      fenyezujian,
+    }
+  }
+
+</script>

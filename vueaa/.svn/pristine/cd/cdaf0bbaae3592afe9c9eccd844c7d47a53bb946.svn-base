@@ -1,0 +1,36 @@
+/**
+ * Created by Administrator on 2019/2/21.
+ */
+const DBCONFIG = require("../config/dbconfig");
+let homeController = {
+//    遍历商品
+    home(req,resp){
+        // console.log(req.query);
+        DBCONFIG.connect("SELECT COUNT(*) AS num FROM goods GROUP BY gtybe",
+            [],
+            (err,data)=>{
+                if(!err){
+                    resp.send(data);
+                    console.log(data)
+                }else {
+                    console.log(err)
+                }
+            }
+        )
+    },
+    huiyuan(req,resp){
+        // console.log(req.query);
+        DBCONFIG.connect("SELECT COUNT(*) AS num FROM goods GROUP BY gtybe",
+            [],
+            (err,data)=>{
+                if(!err){
+                    resp.send(data);
+                    console.log(data)
+                }else {
+                    console.log(err)
+                }
+            }
+        )
+    }
+};
+module.exports=homeController;

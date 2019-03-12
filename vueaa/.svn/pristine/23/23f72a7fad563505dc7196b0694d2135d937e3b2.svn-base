@@ -1,0 +1,65 @@
+<template>
+  <div id="app">
+    <router-view v-if="isRouterAlive"></router-view>
+  </div>
+</template>
+<script>
+  import mynav from "./components/nav.vue"
+  import laowang from './components/laowang.vue'
+  import chenjt from './components/chenjt.vue'
+  import chenli from './components/chenli.vue'
+  import xurun from './components/xurun.vue'
+  import fangyin from './components/fangyin.vue'
+  import dage from './components/dage.vue'
+
+
+
+  export default {
+    name: 'App',
+    provide(){
+        return{
+            reload:this.reload
+        }
+    },
+    data(){
+        return{
+            isRouterAlive:true
+        }
+    },
+    methods:{
+        reload(){
+            this.isRouterAlive =false
+          this.$nextTick(function(){
+              this.isRouterAlive = true
+          })
+        }
+    },
+    components: {
+      mynav,
+      laowang,
+      chenjt,
+      chenli,
+      xurun,
+      fangyin,
+      dage,
+    }
+  }
+
+</script>
+
+<style>
+  #app{
+    display: flex;
+  }
+.el-pager li.active{
+    color:#5d5386;
+  }
+  .el-pager li:hover {
+    color: #5d5386;
+  }
+  .el-pager li{
+    color: #aea9c3;
+  }
+
+
+</style>

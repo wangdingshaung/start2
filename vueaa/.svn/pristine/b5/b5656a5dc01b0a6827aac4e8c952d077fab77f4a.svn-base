@@ -1,0 +1,397 @@
+<template>
+  <div class="tijiao">
+    <div class="div1">
+      <span class="span">{{mytitle}}</span>
+    </div>
+    <div class="conten">
+      <el-form ref="form" :model="form" label-width="80px">
+        <el-form-item label="商品名称:"  class="demo-input-size">
+          <el-input v-model="form.name"></el-input>
+        </el-form-item>
+        <el-form-item label="商品单价:" class="demo-input-size">
+          <el-input v-model="form.price" @blur="danjia" maxlength="5"></el-input>
+          <p v-if="test1.yanzheng" class="p">{{test1.test}}</p>
+        </el-form-item>
+        <el-form-item label="商品编号:"  class="demo-input-size">
+          <el-input v-model="form.number" :disabled="true"></el-input>
+        </el-form-item>
+        <el-form-item label="商品功效:"  class="demo-input-size">
+          <el-input v-model="form.decoration"></el-input>
+        </el-form-item>
+        <el-form-item label="商品成分1:"  class="demo-input-size">
+          <el-input v-model="form.component1" ></el-input>
+        </el-form-item>
+        <el-form-item label="商品成分2:"  class="demo-input-size">
+          <el-input v-model="form.component2" ></el-input>
+        </el-form-item>
+        <el-form-item label="商品成分3:"  class="demo-input-size">
+          <el-input v-model="form.component3" ></el-input>
+        </el-form-item>
+        <el-form-item label="商品成分4:"  class="demo-input-size">
+          <el-input v-model="form.component4" ></el-input>
+        </el-form-item>
+        <el-form-item label="实用肤质:">
+          <el-checkbox-group v-model="form.type" class="mytype">
+            <el-checkbox label="油性肤质" name="type"></el-checkbox>
+            <el-checkbox label="干性肤质" name="type"></el-checkbox>
+            <el-checkbox label="所有肤质" name="type"></el-checkbox>
+            <el-checkbox label="混合型肤质" name="type"></el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="商品类型:">
+          <el-radio-group v-model="form.leixing">
+            <el-radio label="面霜"></el-radio>
+            <el-radio label="眼霜"></el-radio>
+            <el-radio label="精华"></el-radio>
+            <el-radio label="面部油"></el-radio>
+            <el-radio label="洁面乳"></el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <p v-if="test2.yanzheng" class="p">{{test2.test}}</p>
+        <el-form-item label="商品上架:">
+          <el-switch v-model="form.delivery"></el-switch>
+        </el-form-item>
+        <el-form-item label="商品介绍:">
+          <el-input type="textarea" v-model="form.desc"></el-input>
+        </el-form-item>
+        <el-upload
+          class="upload-demo"
+          action="/myapi/createGoods/tupian"
+          :on-preview="handlePreview"
+          :on-remove="handleRemove"
+          :file-list="fileList2"
+          list-type="picture"
+          :on-success="chengong"
+        >
+          <el-button size="small" type="primary">点击上传</el-button>
+          <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+        </el-upload>
+        <el-form-item class="butdiv">
+          <router-link :to="lujin">
+            <el-button type="primary" @click="onSubmit" class="btn1">提交</el-button>
+          </router-link>
+
+          <router-link to="/goods"><el-button class="btn2">取消</el-button></router-link>
+        </el-form-item>
+      </el-form>
+    </div>
+
+  </div>
+
+</template>
+
+<script>
+  export default {
+    name: 'tijiao',
+    data() {
+      return {
+        fileList2: [],
+        form: {
+            price:"",
+            decoration:"",
+            number:Math.floor(Math.random()*(9000-3000+1)+3000),
+            name: '',
+            delivery: false,
+            type: [],
+            desc: '',
+            leixing:"",
+            component1:"",
+            component2:"",
+            component3:"",
+            component4:"",
+            num:[]
+        },
+        add:[],
+        test1: {yanzheng:false,test:'请输入正确的数字'},
+        test2: {yanzheng:false,test:'请输入1-5的数字'},
+        state:false,
+        and:true,
+        mytitle:"",
+        lujin:"/chenli/tijiao"
+      }
+    },
+    mounted(){
+      let id = this.$route.query.id;
+      if (id){
+          this.and = false;
+          this.mytitle = "修改商品";
+        this.$http.get("/myapi/createGoods/get",{
+          params:{
+            id:id
+          }
+        })
+          .then(resp => {
+            let tt;
+            let arr;
+            let obj={};
+            let aa;
+            console.log(resp.data);
+            if (Number(resp.data[0].gtybe)==1){
+              this.form.leixing="面霜"
+            }else if (Number(resp.data[0].gtybe)==2){
+              this.form.leixing="眼霜"
+            }else if(Number(resp.data[0].gtybe)==3){
+              this.form.leixing="精华"
+            }else if(Number(resp.data[0].gtybe)==4){
+              this.form.leixing="面部油"
+            }else {
+              this.form.leixing="洁面乳"
+            }
+            if (Number(resp.data[0].g_status)){
+              tt = false;
+            }else {
+              tt = true
+            }
+
+            this.form.name = resp.data[0].g_name;
+            this.form.price = resp.data[0].price;
+            this.form.number = resp.data[0].g_number;
+            this.form.decoration = resp.data[0].decoration;
+            this.form.desc = resp.data[0].cf_num1;
+            this.form.component1 = resp.data[0].g_biaoti1;
+            this.form.component2 = resp.data[0].g_biaoti2;
+            this.form.component3 = resp.data[0].g_biaoti3;
+            this.form.component4 = resp.data[0].g_biaoti4;
+            this.form.delivery = tt;
+            arr = resp.data[0].g_fuzhi.split(",");
+            this.form.type = arr;
+            obj.name =  "tt";
+            obj.url =  "/myapi/"+resp.data[0].goodsSrc;
+            this.fileList2.push(obj);
+          }).catch(err => {
+          console.log(err);
+        })
+      }else {
+        this.mytitle = "新增商品";
+      }
+      },
+
+
+    methods: {
+        ddd(){
+            let aa =/^([1-4]|5)$/;
+            let bb;
+            bb = aa.test(Number(this.form.leixing));
+            if (!bb){
+              this.test2.yanzheng = true;
+            }else {
+              this.test2.yanzheng = false;
+            }
+        },
+        danjia(){
+          if(isNaN(Number(this.form.price))){  //当输入不是数字的时候，Number后返回的值是NaN;然后用isNaN判断。
+              this.test1.yanzheng = true;
+          }else {
+              this.test1.yanzheng = false;
+          }
+        },
+      onSubmit() {
+            let aa ;
+        let id = this.$route.query.id;
+        console.log(this.form.num);
+        if (this.and){
+          if(this.state){
+            if (this.form.name==""||this.form.price==""||this.form.decoration==""||this.form.number==""||this.form.type==[]||this.form.desc==''){
+              alert("输入内容有没填写的内容")
+            }else {
+              if (this.form.leixing=="面霜"){
+                aa=1
+              }else if (this.form.leixing=="眼霜"){
+                aa=2
+              }else if(this.form.leixing=="精华"){
+                aa=3
+              }else if(this.form.leixing=="面部油"){
+                aa=4
+              }else {
+                aa=5
+              }
+              console.log(this.form);
+              this.form.ab=aa;
+              this.$http.get("/myapi/createGoods/add",{
+                params:this.form,
+              })
+                .then(resp => {
+                  if (resp.data=="添加成功"){
+                    alert(resp.data);
+                    this.lujin="/goods"
+                  }
+                }).catch(err => {
+                console.log(err);
+              });
+
+            }
+          }else {
+            alert("请上传图片")
+          }
+        }else {
+          if (this.form.leixing=="面霜"){
+            aa=1
+          }else if (this.form.leixing=="眼霜"){
+            aa=2
+          }else if(this.form.leixing=="精华"){
+            aa=3
+          }else if(this.form.leixing=="面部油"){
+            aa=4
+          }else {
+            aa=5
+          }
+          this.form.ab =aa;
+          this.form.id=id;
+          this.$http.get("/myapi/createGoods/xiugai",{
+            params:this.form
+          })
+            .then(resp => {
+              if (resp.data=="修改成功"){
+                alert(resp.data);
+                this.lujin="/goods"
+              }
+            }).catch(err => {
+            console.log(err);
+          })
+        }
+
+
+      },
+      handleRemove(file, fileList) {
+        this.$http.get("/myapi/createGoods/mydelet",{
+          params:file.response
+        })
+          .then(resp => {
+            this.add = resp.data;
+          }).catch(err => {
+          console.log(err);
+        })
+    },
+      handlePreview(file) {
+        console.log(file);
+      },
+      chengong(response, file, fileList){
+        this.state = true;
+        this.form.num=fileList;
+      }
+    }
+
+  }
+</script>
+
+<style scoped>
+  .butdiv{
+    display: block;
+    width:300px;
+    text-align: center;
+    margin: 0 auto;
+  }
+  .el-button{
+    background: #5b5188;
+    border: none;
+  }
+.tijiao{
+  width: 95%;
+  margin: 20px auto;
+  background: #ffffff;
+  box-shadow:0 0 10px rgba(188, 143, 143, 0.57);
+}
+.upload-demo{
+  margin: 10px 10px;
+}
+.conten{
+  width: 95%;
+  margin: 30px auto;
+  line-height: 50px;
+}
+  .btn1{
+    background: #e23f83;
+    width: 80px;
+    background: linear-gradient(to right,#e23f83 0%,#ea5844 100%);
+    background-size: 200% auto;
+    font-weight: 600;
+    transition: 0.5s;
+    color: #fff;
+    border: 0 none;
+    border-radius: 20px;
+    padding: 12px 20px;
+
+  }
+  .btn2{
+    background: #e4e8f0;
+    width: 80px;
+    border: none;
+    margin-left: 50px;
+    border-radius: 20px;
+    color: #2c304d;
+  }
+
+  .p{
+    color: red;
+  }
+  .el-switch.is-checked .el-switch__core {
+    border-color: #5c5287;
+    background-color: #5c5287;
+  }
+  .span{
+    line-height: 50px;
+    height:50px;
+    margin-left: 50px;
+  }
+  .div1{
+    /*height: 40px;*/
+    /*line-height: 40px;*/
+    border-bottom: 1px solid rgba(188, 143, 143, 0.57);
+  }
+
+</style>
+<style>
+  .el-switch.is-checked .el-switch__core {
+    border-color: #5c5287;
+    background-color: #5c5287;
+  }
+  .el-upload-list--picture .el-upload-list__item-status-label {
+    position: absolute;
+    right: -17px;
+    top: -7px;
+    width: 46px;
+    height: 26px;
+    background: #5c5287;
+    text-align: center;
+    -webkit-transform: rotate(45deg);
+    transform: rotate(45deg);
+    -webkit-box-shadow: 0 1px 1px #ccc;
+    box-shadow: 0 1px 1px #ccc;
+  }
+  .el-form-item__content {
+    margin-left: 0 !important;
+  }
+  .el-form-item__label {
+    display: inline-block;
+  }
+  .el-form-item__content {
+    display: inline-block;
+    /*width: 1000px;*/
+
+  }
+  .el-form-item {
+    /*text-align: center;*/
+    font-size: 0;
+    width: 1100px;
+    margin: 0 auto;
+  }
+  .conten .el-input__inner {
+    width: 1000px;
+  }
+  .conten .el-textarea__inner {
+    width: 1000px;
+  }
+  .upload-demo[data-v-57fabab2] {
+    width: 1100px;
+    margin: 0 auto;
+  }
+  .el-radio__input.is-checked .el-radio__inner {
+    border-color: #5c5287;
+    background-color: #5c5287;
+   }
+  .el-radio__input.is-checked+.el-radio__label {
+    color: #5c5287;
+  }
+</style>
+
+

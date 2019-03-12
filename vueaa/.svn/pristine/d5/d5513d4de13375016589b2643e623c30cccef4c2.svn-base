@@ -1,0 +1,21 @@
+/**
+ * Created by Administrator on 2019/2/21.
+ */
+const DBCONFIG = require("../config/dbconfig");
+let goodsController = {
+//    遍历商品
+    add(req,resp){
+        console.log(req.query);
+        DBCONFIG.connect("INSERT INTO t_address values(null,?,?,?,?,?,?,?,?,null)",
+            [],
+            (err,data)=>{
+                if(!err){
+                    resp.send("添加成功");
+                }else {
+                    console.log(err)
+                }
+            }
+        )
+    }
+};
+module.exports=goodsController;

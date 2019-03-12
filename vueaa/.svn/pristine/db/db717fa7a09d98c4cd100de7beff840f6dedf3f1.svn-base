@@ -1,0 +1,65 @@
+/**
+ * Created by Administrator on 2019/2/21.
+ */
+const DBCONFIG = require("../config/dbconfig");
+let homeController = {
+//    遍历商品
+    home(req,resp){
+        // console.log(req.query);
+        DBCONFIG.connect("SELECT COUNT(*) AS num FROM goods GROUP BY gtybe",
+            [],
+            (err,data)=>{
+                if(!err){
+                    resp.send(data);
+                    console.log(data)
+                }else {
+                    console.log(err)
+                }
+            }
+        )
+    },
+    huiyuan(req,resp){
+        // console.log(req.query);
+        DBCONFIG.connect("SELECT  COUNT(*) AS sheets,MONTH(u_date) AS montha FROM t_user GROUP BY DATE_FORMAT(u_date,'%m')",
+            [],
+            (err,data)=>{
+                if(!err){
+                    resp.send(data);
+                    console.log(data)
+                }else {
+                    console.log(err)
+                }
+            }
+        )
+    },
+    jidi(req,resp){
+        // console.log(req.query);
+        DBCONFIG.connect("SELECT t_orderdetail.g_id,g_name,COUNT(od_num) AS num FROM t_orderdetail,goods WHERE goods.g_id=t_orderdetail.g_id GROUP BY t_orderdetail.g_id",
+            [],
+            (err,data)=>{
+                if(!err){
+                    resp.send(data);
+                    console.log(data)
+                }else {
+                    console.log(err)
+                }
+            }
+        )
+    },
+    myuser(req,resp){
+        console.log(req.body);
+        DBCONFIG.connect("SELECT username,u_id FROM t_user WHERE username=? AND PASSWORD=?",
+            [req.body.username,req.body.password],
+            (err,data)=>{
+                if(!err){
+                    console.log(data[0].u_id)
+                    req.session.id=data[0].u_id
+                    resp.send(data);
+                }else {
+                    console.log(err)
+                }
+            }
+        )
+    }
+};
+module.exports=homeController;

@@ -1,0 +1,25 @@
+/**
+ * Created by Administrator on 2019/2/22.
+ */
+const EXPRESS=require("express");
+const ROUTER=EXPRESS.Router();
+const BOKE = require("../controller/bokeController");
+const UPLOAD = require("../config/upload");
+
+
+
+
+//分页
+ROUTER.get("/gettotal",BOKE.gettotal);
+// ROUTER.get("/showbloga",BOKE.showbloga);
+// 渲染
+ROUTER.get("/showblog",BOKE.showblog);
+//新增
+ROUTER.post("/addblog",UPLOAD.single("myfile"),BOKE.addblog);
+//删除
+ROUTER.get("/shanchushuju",BOKE.shanchushuju);
+//修改
+ROUTER.get("/xiugai",BOKE.xiugai);
+
+
+module.exports=ROUTER;

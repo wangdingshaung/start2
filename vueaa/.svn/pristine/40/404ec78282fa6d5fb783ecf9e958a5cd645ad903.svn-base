@@ -1,0 +1,115 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+import xurun from '@/components/xurun'
+import chenjt from '@/components/chenjt'
+import chenli from '@/components/chenli'
+import goods from '@/components/goods'
+import tijiao from '@/components/tijiao'
+import order from '@/page/ordermanage'
+ import fuwenben from '@/components/fuwenben'
+import hdtijiao from '@/components/hdtijiao'
+import store from '@/store/index'
+import laowang from '@/components/laowang'
+import fangyin from '@/components/fangyin'
+import dage from '@/components/dage'
+import huodong from '@/components/huodong'
+Vue.use(Router);
+const vueRouter = new Router({
+  routes: [
+    // {
+    //   path: '/',
+    //   name: 'chenjt',
+    //   component: chenjt
+    // },
+    {
+      path: '/xurun',
+      name: 'xurun',
+      component: xurun,
+      meta:{auth:true}
+    },{
+      path: '/chenjt',
+      name: 'chenjt',
+      component: chenjt,
+      meta:{auth:true}
+    },{
+ 		  path: '/order',
+      name: 'order',
+      component: order
+    },{
+      path: '/chenli',
+      name: 'chenli',
+      component: chenli
+    },{
+      path: '/goods',
+      name: 'goods',
+      component: goods
+    }, {
+      path: '/chenli/tijiao',
+      name: 'tijiao',
+      component: tijiao
+    },{
+      path: '/hdtijiao',
+      name: 'hdtijiao',
+      component: hdtijiao
+    },{
+      path: '/laowang',
+      name: 'laowang',
+      component: laowang
+    },{
+      path: '/xurun/fuwenben',
+      name: 'fuwenben',
+      component: fuwenben
+    },
+    {
+      path: '/chenli',
+      name: 'chenli',
+      component: chenli,
+      meta:{auth:true}
+    },{
+      path: '/laowang',
+      name: 'laowang',
+      component: laowang,
+      meta:{auth:true}
+    },{
+      path: '/fangyin',
+      name: 'fangyin',
+      component: fangyin,
+      meta:{auth:true}
+    },{
+      path: '/dage',
+      name: 'dage',
+      component: dage,
+      meta:{auth:true}
+    },{
+      path: '/goods',
+      name: 'goods',
+      component: goods,
+      meta:{auth:true}
+    },{
+      path: '/huodong',
+      name: 'huodong',
+      component: huodong,
+      meta:{auth:true}
+    }
+  ]
+})
+vueRouter.beforeEach((to,from,next)=>{
+  console.log(to,from);
+  if(to.matched.some( m => m.meta.auth)){
+
+// 对路由进行验证
+    if(store.state.isLogin==true) { // 已经登陆
+      next()   // 正常跳转到你设置好的页面
+    }
+    else{
+
+// 未登录则跳转到登陆界面，query:{ Rurl: to.fullPath}表示把当前路由信息传递过去方便登录后跳转回来；
+
+      next({path:'/',query:{ Rurl: to.fullPath} })
+    }
+  }else{
+    next()
+  }
+
+})
+export default vueRouter

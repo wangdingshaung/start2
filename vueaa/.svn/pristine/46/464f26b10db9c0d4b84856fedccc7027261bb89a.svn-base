@@ -1,0 +1,66 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+import goods from '@/components/goods'
+import xurun from '@/components/xurun'
+import chenjt from '@/components/chenjt'
+import chenli from '@/components/chenli'
+import tijiao from '@/components/tijiao'
+import order from '@/page/ordermanage'
+import bokeke from '@/components/bokeke'
+import laowang from '@/components/laowang'
+import fuwenben from '@/components/fuwenben'
+import hdtijiao from '@/components/hdtijiao'
+
+// import kongbaitiaozhuang from '@/components/kongbaitiaozhuang'
+
+Vue.use(Router);
+export default new Router({
+  routes: [
+    {
+      path: '/',
+      name: 'chenjt',
+      component: chenjt
+    },{
+      path: '/xurun',
+      name: 'xurun',
+      component: xurun
+    },{
+      path: '/chenjt',
+      name: 'chenjt',
+      component: chenjt
+    },{
+ 		path: '/order',
+      name: 'order',
+      component: order
+},{
+      path: '/chenli',
+      name: 'chenli',
+      component: chenli
+    },{
+      path: '/goods',
+      name: 'goods',
+      component: goods
+    },{
+      path: '/chenli/tijiao',
+      name: 'tijiao',
+      component: tijiao
+    },{
+      path: '/xurun/bokeke',
+      name: 'bokeke',
+      component: bokeke
+    },
+    {
+      path: '/laowang',
+      name: 'laowang',
+      component: laowang
+    },
+    {
+      path: '/hdtijiao',
+      name: 'hdtijiao',
+      component: hdtijiao
+    }
+
+
+
+  ]
+})

@@ -1,0 +1,157 @@
+<template>
+  <div class="goodsTable">
+    <div class="inputBox">
+      <span>商品名称：</span><el-input placeholder="请输入商品名称" class="goods_search"></el-input>
+      <span>商品价格：</span><el-input placeholder="请输入商品价格" class="goods_search"></el-input>
+      <span>商品类型：</span><el-input placeholder="请输入商品类型" class="goods_search"></el-input>
+      <span>商品状态：</span><el-input placeholder="请输入商品状态" class="goods_search"></el-input>
+      <el-button class="search_button">搜索</el-button>
+    </div>
+
+    <el-table
+      :data="tableData"
+      style="width: 100%">
+      <el-table-column  width="180" align="center">
+        <el-checkbox v-model="checked"></el-checkbox>
+      </el-table-column>
+      <el-table-column
+        prop="goods_id"
+        label="商品ID"
+        width="180"
+        align="center">
+      </el-table-column>
+      <el-table-column
+        label="商品图片"
+        width="180"
+        align="center">
+        <!--//遍历商品图片-->
+        <template slot-scope="scope"><img :src="scope.row.goods_img"/></template>
+      </el-table-column>
+      <el-table-column
+        prop="goods_name"
+        label="商品名称"
+        width="180"
+        align="center">
+      </el-table-column>
+      <el-table-column
+        prop="goods_type"
+        label="商品类型"
+        width="180"
+        align="center">
+      </el-table-column>
+      <el-table-column
+        prop="goods_price"
+        label="商品价格"
+        width="180"
+        align="center">
+      </el-table-column>
+      <el-table-column
+        prop="goods_status"
+        label="商品状态"
+        width="180"
+        align="center">
+      </el-table-column>
+      <el-table-column
+        prop="handle"
+        label="操作"
+        align="center">
+        <el-row>
+          <el-button  icon="el-icon-edit" circle></el-button>
+          <el-button  icon="el-icon-check" circle></el-button>
+          <el-button  icon="el-icon-delete" circle></el-button>
+        </el-row>
+      </el-table-column>
+    </el-table>
+    <el-button type="danger" round class="addgoods">新增商品</el-button>
+    <div class="block">
+      <el-pagination
+        layout="prev, pager, next"
+        :total="50" class="yema">
+      </el-pagination>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'goods',
+      data() {
+        return {
+          checked: false,
+          tableData: [{
+            goods_id:1,
+            goods_img: '../../static/images/logo.png',
+            goods_name: '商品名称',
+            goods_type:"商品类型",
+            goods_status:"销售中",
+            goods_price: '$11',
+
+          }, {
+            goods_id:2,
+            goods_img: '../../static/images/test.jpg',
+            goods_name: '商品名称',
+            goods_type:"商品类型",
+            goods_status:"销售中",
+            goods_price: '$12',
+          }, {
+            goods_id:3,
+            goods_img: '../../static/images/logo.png',
+            goods_name: '商品名称',
+            goods_type:"商品类型",
+            goods_status:"销售中",
+            goods_price: '$13',
+          }, {
+            goods_id:4,
+            goods_img: '../../static/images/test.jpg',
+            goods_name: '商品名称',
+            goods_type:"商品类型",
+            goods_status:"销售中",
+            goods_price: '$14',
+          }]
+        }
+      }
+}
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+.goodsTable{
+    position: relative;
+  }
+img{
+  width: 50px;
+  height: 50px;
+}
+.goods_search{
+  width: 150px;
+  text-align: center;
+}
+.inputBox{
+  width:65%;
+  margin: 60px auto;
+}
+  .search_button{
+    margin-left: 50px;
+    background-color: rgb(93,83,134);
+    color: white;
+  }
+/*.addgoods{*/
+  /*position: absolute;*/
+  /*bottom: -150px;*/
+  /*left: 200px;*/
+/*}*/
+.addgoods{
+  margin:50px 150px;
+}
+.yema{
+  position: absolute;
+  right: 100px;
+  bottom: 0;
+}
+span{
+  font-size: 10px;
+  color: #686868;
+  margin-left: 20px;
+}
+
+</style>

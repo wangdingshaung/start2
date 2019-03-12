@@ -1,0 +1,58 @@
+/**
+ * Created by Administrator on 2019/2/26 0026.
+ */
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+Vue.use(Vuex)
+
+const state={
+  isLogin:false,
+  studentid:0,
+currentUser:null,
+  // token:""
+};
+
+// const getters={
+//   currentUser:state.currentUser,
+// }
+
+const mutations={
+      loginSuccess(state){
+        state.isLogin=true;
+        state.studentid
+
+      },
+      logonFailed(state){
+        state.isLogin=false
+        state.studentid
+      }
+}
+const actions={
+  login(context,payload){
+      console.log(this._vm)
+    this._vm.$http.post("/myapi/homeshow/myuser",{
+        username:payload.username,
+        password:payload.password
+
+    }).then(resp=>{
+      // switch(resp.data){
+      //   case "登录成功":context.commit("loginSuccess");break;
+      //   case "登录失败":context.commit("logonFailed");break;
+      // }
+      if(resp.data.length){
+        context.commit("loginSuccess")
+        state.studentid=resp.data[0].username;
+      }else{
+        context.commit("logonFailed")
+        state.studentid=0
+      }
+    })
+  }
+}
+export default new Vuex.Store({
+  state,
+  mutations,
+  actions,
+  // getters
+})

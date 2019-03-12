@@ -1,0 +1,33 @@
+<template>
+  <div id="app">
+    <mynav></mynav>
+    <!--<bokeliebiao></bokeliebiao>-->
+  </div>
+</template>
+<script>
+  import mynav from "./components/nav.vue"
+  import laowang from './components/laowang.vue'
+  import chenjt from './components/chenjt.vue'
+  import chenli from './components/chenli.vue'
+  import xurun from './components/xurun.vue'
+  import fangyin from './components/fangyin.vue'
+  import dage from './components/dage.vue'
+
+  export default {
+  name: 'App',
+  components:{
+      mynav,
+    laowang,
+    chenjt,
+    chenli,
+    xurun,
+    fangyin,
+    dage
+  }
+}
+
+</script>
+
+<style>
+
+</style>

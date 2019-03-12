@@ -1,0 +1,82 @@
+<template>
+  <div class="laowang">
+    <el-table
+      :data="tableData"
+      style="width: 100%">
+      <el-table-column
+        prop="u_id"
+        label="ID"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="username"
+        label="账户"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="tel"
+        label="电话"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="sex"
+        label="性别"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="time"
+        label="出生日期"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="u_num"
+        label="账户昵称"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="u_email"
+        label="邮箱"
+        width="180">
+      </el-table-column><el-table-column
+      prop="address"
+      label="地址"
+      width="180">
+    </el-table-column>
+
+    </el-table>
+  </div>
+</template>
+
+<script>
+  export default {
+    name: 'laowang',
+    data () {
+      return {
+        tableData: [{
+          u_id: '2016-05-02',
+          username: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }, {
+          u_id: '2016-05-04',
+          username: '王小虎',
+          address: '上海市普陀区金沙江路 1517 弄'
+        }, {
+          u_id: '2016-05-01',
+          username: '王小虎',
+          address: '上海市普陀区金沙江路 1519 弄'
+        }, {
+          u_id: '2016-05-03',
+          username: '王小虎',
+          address: '上海市普陀区金沙江路 1516 弄'
+        }]
+      }
+    }
+  }
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+  .laowang{
+    margin: auto;
+  }
+</style>

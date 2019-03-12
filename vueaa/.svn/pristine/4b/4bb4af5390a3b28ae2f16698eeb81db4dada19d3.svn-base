@@ -1,0 +1,114 @@
+<template>
+  <div id="UEtor">
+    <form action="/myapi/allBoke/addblog" class="ueditor" method="post" enctype="multipart/form-data">
+      标题：<input type="text" name="title" class="inp">
+      作者：<input type="text" name="author" class="inp">
+      <span class="shangchuan">选择上传图片</span>
+      <input type="file" name="myfile" class="shangchuantupian">
+      <!-- 加载编辑器的容器 -->
+      <script id="editor" name="content" type="text/plain">
+        编辑内容
+      </script>
+      <button   id="fabuboke">发布博客</button>
+    </form>
+  </div>
+</template>
+
+
+<!-- 实例化编辑器 -->
+<script>
+  export default{
+      name:'bokeke',
+    data(){
+          return{
+              editor:null
+          }
+    },
+    props:{
+        defaultMsg:{type:String},
+        config:{type:Object}
+    },
+    mounted(){
+//        初始化UE
+      const _this = this;
+      this.editor = UE.getEditor('editor',_this.config);
+      this.editor.addListener("ready", function () {
+        _this.editor.setContent(_this.defaultMsg); // 确保UE加载完成后，放入内容。
+      });
+    },
+    methods:{
+      getUEContent(){
+//            获取内容方法
+          return this.editor.getContent()
+        }
+    },
+    destoryed(){
+        this.editor.destroy();
+    }
+  }
+
+
+</script>
+<style>
+  .ueditor{
+    width: 1200px;
+    margin: auto;
+  }
+  #UEtor{
+    width: 1200px;
+    margin: auto;
+    position: relative;
+  }
+  #fabuboke{
+    width: 120px;
+    height: 36px;
+    color: #fff;
+    background-color: #409EFF;
+    border: 1px solid #409EFF;
+    border-radius: 3px;
+    cursor: pointer;
+    position: absolute;
+    left: 760px;
+    top: 10px;
+  }
+  .inp{
+    width: 200px;
+    height: 30px;
+    border-radius: 3px;
+    margin: 10px 10px;
+  }
+  .shangchuan:hover{
+    color: #409EFF;
+    border-color: #c6e2ff;
+    background-color: #ecf5ff;
+  }
+
+  .shangchuan{
+    display: block;
+    width: 120px;
+    height: 36px;
+    background: #fff;
+    border: 1px solid #dcdfe6;
+    color: #606266;
+    position: absolute;
+    left: 600px;
+    top: 10px;
+    border-radius: 3px;
+    font-size: 14px;
+    text-align: center;
+    line-height: 36px;
+    cursor: pointer;
+  }
+  .shangchuantupian{
+    position: absolute;
+    left: 600px;
+    top: 10px;
+    height: 36px;
+    width: 120px;
+    cursor: pointer;
+    opacity: 0;
+  }
+  .edui-default{
+    position: static !important;
+  }
+</style>

@@ -1,0 +1,87 @@
+<template>
+  <div id="huodong">
+    <el-table
+      :data="tableData"
+      style="width: 100%">
+      <el-table-column
+        type="selection"
+        width="270"
+        align="center">
+      </el-table-column>
+      <el-table-column
+        prop="id"
+        label="活动编号"
+        width="250"
+        align="center">
+      </el-table-column>
+      <el-table-column
+        prop="name"
+        label="活动标题"
+        width="300"
+        align="center">
+      </el-table-column>
+      <el-table-column
+        prop="address"
+        label="活动内容"
+        width="300"
+        :show-overflow-tooltip="true"
+        align="center">
+      </el-table-column>
+      <el-table-column
+        prop="data"
+        label="活动时间"
+        width="200"
+        align="center">
+      </el-table-column>
+      <el-table-column
+        prop="tt"
+        label="操作"
+        width="350"
+        align="center">
+        <el-button icon="el-icon-edit" circle class="backcolorChange"></el-button>
+        <el-button circle class="backcolorChange" icon="el-icon-delete"></el-button>
+      </el-table-column>
+    </el-table>
+  </div>
+</template>
+<script>
+
+  export default {
+    name: 'huodong',
+      data(){
+        return{
+          tableData: [{
+            id:1,
+            name:"nihao",
+            address:"dawdwadawdawdawddfsdgdfhgfhfghgfdhdhdfghgdfhgfhhdghdgfh",
+            data:"2001-1-1"
+          }]
+        }
+      },
+    mounted(){
+        this.$http.get("/myapi/createGoods/show")
+          .then(resp => {
+            this.tableData = resp.data;
+          }).catch(err => {
+          console.log(err);
+        })
+    },
+    methods(){
+
+    },
+  }
+</script>
+
+<style scoped>
+#huodong{
+  /*width: 100%;*/
+  margin: 0 auto;
+}
+
+.backcolorChange:hover{
+  background-color: rgb(93, 83, 134);
+  color:white;
+}
+
+
+</style>

@@ -1,0 +1,270 @@
+<template>
+  <div class="tijiao">
+    <div class="div1">
+      <span class="span">{{mytitle}}</span>
+    </div>
+    <div class="conten">
+      <el-form ref="form" :model="form" label-width="80px">
+        <el-form-item label="商品名称"  class="demo-input-size">
+          <el-input v-model="form.name"></el-input>
+        </el-form-item>
+        <el-form-item label="商品单价" class="demo-input-size">
+          <el-input v-model="form.price" @blur="danjia" maxlength="5"></el-input>
+          <p v-if="test1.yanzheng" class="p">{{test1.test}}</p>
+        </el-form-item>
+        <el-form-item label="商品编号"  class="demo-input-size">
+          <el-input v-model="form.number" ></el-input>
+        </el-form-item>
+        <el-form-item label="商品功效"  class="demo-input-size">
+          <el-input v-model="form.decoration"></el-input>
+        </el-form-item>
+        <el-form-item label="实用肤质">
+          <el-checkbox-group v-model="form.type">
+            <el-checkbox label="油性肤质" name="type"></el-checkbox>
+            <el-checkbox label="干性肤质" name="type"></el-checkbox>
+            <el-checkbox label="所有肤质" name="type"></el-checkbox>
+            <el-checkbox label="混合型肤质" name="type"></el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="商品类型"  class="demo-input-size">
+          <el-input v-model="form.leixing" @blur="ddd"></el-input>
+        </el-form-item>
+        <p v-if="test2.yanzheng" class="p">{{test2.test}}</p>
+        <el-form-item label="商品上架">
+          <el-switch v-model="form.delivery"></el-switch>
+        </el-form-item>
+        <el-form-item label="商品介绍">
+          <el-input type="textarea" v-model="form.desc"></el-input>
+        </el-form-item>
+        <el-upload
+          class="upload-demo"
+          action="/myapi/createGoods/tupian"
+          :on-preview="handlePreview"
+          :on-remove="handleRemove"
+          :file-list="fileList2"
+          list-type="picture"
+          :on-success="chengong"
+        >
+          <el-button size="small" type="primary">点击上传</el-button>
+          <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+        </el-upload>
+        <el-form-item class="butdiv">
+          <router-link to="/goods">
+            <el-button type="primary" @click="onSubmit" class="btn1">提交</el-button>
+          </router-link>
+
+          <router-link to="/goods"><el-button class="btn2">取消</el-button></router-link>
+        </el-form-item>
+      </el-form>
+    </div>
+
+  </div>
+
+</template>
+
+<script>
+  export default {
+    name: 'tijiao',
+    data() {
+      return {
+        fileList2: [],
+        form: {
+            price:"",
+            decoration:"",
+            number:"",
+            name: '',
+            delivery: false,
+            type: [],
+            desc: '',
+            leixing:"",
+            num:[]
+        },
+        add:[],
+        test1: {yanzheng:false,test:'请输入正确的数字'},
+        test2: {yanzheng:false,test:'请输入1-5的数字'},
+        state:false,
+        and:true,
+        mytitle:""
+      }
+    },
+    mounted(){
+      let id = this.$route.query.id;
+      if (id){
+          this.and = false;
+          this.mytitle = "修改商品";
+        this.$http.get("/myapi/createGoods/get",{
+          params:{
+            id:id
+          }
+        })
+          .then(resp => {
+            let tt;
+            let arr;
+            let obj={};
+            if (Number(resp.data[0].g_status)){
+              tt = false;
+            }else {
+              tt = true
+            }
+            this.form.name = resp.data[0].g_name;
+            this.form.price = resp.data[0].price;
+            this.form.number = resp.data[0].g_number;
+            this.form.decoration = resp.data[0].decoration;
+            this.form.desc = resp.data[0].cf_num1;
+            this.form.leixing = resp.data[0].gtybe;
+            this.form.delivery = tt;
+            arr = resp.data[0].g_fuzhi.split(",");
+            this.form.type = arr;
+            obj.name =  "tt";
+            obj.url =  "/myapi/"+resp.data[0].goodsSrc;
+            this.fileList2.push(obj)
+          }).catch(err => {
+          console.log(err);
+        })
+      }else {
+        this.mytitle = "新增商品";
+      }
+      },
+
+
+    methods: {
+        ddd(){
+            let aa =/^([1-4]|5)$/;
+            let bb;
+            bb = aa.test(Number(this.form.leixing));
+            if (!bb){
+              this.test2.yanzheng = true;
+            }else {
+              this.test2.yanzheng = false;
+            }
+        },
+        danjia(){
+          if(isNaN(Number(this.form.price))){  //当输入不是数字的时候，Number后返回的值是NaN;然后用isNaN判断。
+              this.test1.yanzheng = true;
+          }else {
+              this.test1.yanzheng = false;
+          }
+        },
+      onSubmit() {
+        let id = this.$route.query.id;
+        console.log(this.form.num);
+        if (this.and){
+          if(this.state){
+            if (this.form.name==""||this.form.price==""||this.form.decoration==""||this.form.number==""||this.form.type==[]||this.form.desc==''){
+              alert("输入内容有没填写的内容")
+            }else {
+
+              this.$http.get("/myapi/createGoods/add",{
+                params:this.form,
+              })
+                .then(resp => {
+                  this.add = resp.data;
+                }).catch(err => {
+                console.log(err);
+              })
+            }
+          }else {
+            alert("请上传图片")
+          }
+        }else {
+          this.form.id=id;
+          this.$http.get("/0myapi/createGoods/xiugai",{
+            params:this.form
+          })
+            .then(resp => {
+              this.add = resp.data;
+            }).catch(err => {
+            console.log(err);
+          })
+        }
+
+
+      },
+      handleRemove(file, fileList) {
+        this.$http.get("/myapi/createGoods/mydelet",{
+          params:file.response
+        })
+          .then(resp => {
+            this.add = resp.data;
+          }).catch(err => {
+          console.log(err);
+        })
+    },
+      handlePreview(file) {
+        console.log(file);
+      },
+      chengong(response, file, fileList){
+        this.state = true;
+        this.form.num=fileList;
+      }
+    }
+
+  }
+</script>
+
+<style scoped>
+  .butdiv{
+    margin-top: 20px;
+  }
+  .el-button{
+    background: #5b5188;
+    border: none;
+  }
+.tijiao{
+  width: 800px;
+  margin: 0 auto;
+  /*box-shadow:0px 0px 5px  #f0f0f0;*/
+}
+.upload-demo{
+  margin: 10px 10px;
+}
+.conten{
+  width: 700px;
+  margin: 30px auto;
+  line-height: 50px;
+}
+  .btn1{
+    background: #e3417e;
+    border: none;
+    border-radius: 20px;
+    margin-left: 200px;
+  }
+  .btn2{
+    background: #e4e8f0;
+    border: none;
+    border-radius: 20px;
+    color: #2c304d;
+  }
+.btn1:hover{
+  background: #ea5649;
+}
+.btn2:hover{
+  background: #2c304d;
+  color: #ffffff;
+}
+  .p{
+    color: red;
+  }
+  .el-switch.is-checked .el-switch__core {
+    border-color: #5c5287;
+    background-color: #5c5287;
+  }
+  .span{
+    font-size: 18px;
+    margin-left: 20px;
+  }
+  .div1{
+    height: 40px;
+    line-height: 40px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+</style>
+<style>
+  .el-switch.is-checked .el-switch__core {
+    border-color: #5c5287;
+    background-color: #5c5287;
+  }
+</style>
+
+

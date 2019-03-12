@@ -1,0 +1,109 @@
+<template>
+  <div id="hdtijiao">
+    <span class="span">添加用户评论</span>
+    <div class="myform">
+      <el-form ref="form" :model="form" label-width="80px">
+        <el-form-item label="用户账号">
+          <el-input v-model="form.user"></el-input>
+        </el-form-item>
+        <el-form-item label="用户职业">
+          <el-input v-model="form.name"></el-input>
+        </el-form-item>
+        <el-form-item label="用户评论">
+          <el-input type="textarea" v-model="form.content"></el-input>
+        </el-form-item>
+        <el-form-item class="butdiv">
+          <el-button type="primary" @click="onSubmit" class="btn1">提交</el-button>
+          <el-button class="btn2">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+
+    <div class="hdtupian">
+      <el-upload
+        list-type="picture-card"
+        :on-preview="handlePictureCardPreview"
+        :on-remove="handleRemove"
+        :http-request="onSubmit">
+        <i class="el-icon-plus"></i>
+      </el-upload>
+      <el-dialog :visible.sync="dialogVisible">
+        <img width="100%" :src="dialogImageUrl" alt="">
+      </el-dialog>
+    </div>
+  </div>
+</template>
+
+<script>
+  export default {
+    name: 'hdtijiao',
+    data () {
+      return {
+        form: {
+          user: '',
+          name: '',
+          content: '',
+        },
+        dialogImageUrl: '',
+        dialogVisible: false
+      }
+      },
+    methods: {
+      onSubmit() {
+          console.log("a")
+        this.$http.get("/myapi/createGoods/addshow")
+      },
+      handleRemove(file, fileList) {
+        console.log(file, fileList);
+      },
+      handlePictureCardPreview(file) {
+        this.dialogImageUrl = file.url;
+        this.dialogVisible = true;
+      }
+    }
+  }
+
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+  #hdtijiao{
+    width: 800px;
+    margin: 0 auto;
+    /*margin-top: 50px;*/
+  }
+  .myform{
+    margin-top: 20px;
+  }
+  .span{
+    font-size: 18px;
+    /*margin-left: 20px;*/
+  }
+  .btn1{
+    background: #e3417e;
+    border: none;
+    border-radius: 20px;
+    margin-left: 200px;
+  }
+  .btn2{
+    background: #e4e8f0;
+    border: none;
+    border-radius: 20px;
+    color: #2c304d;
+  }
+  .btn1:hover{
+    background: #ea5649;
+  }
+  .btn2:hover{
+    background: #2c304d;
+    color: #ffffff;
+  }
+  .butdiv{
+    margin-top: 50px;
+    margin-left: 30px;
+  }
+  .hdtupian{
+    display: inline-block;
+    margin-left: 20px;
+  }
+</style>

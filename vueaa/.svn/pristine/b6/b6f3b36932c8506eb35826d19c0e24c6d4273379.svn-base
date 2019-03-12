@@ -1,0 +1,438 @@
+<template>
+  <div class="goodsTable">
+    <div class="inputBox">
+      <span class="myspan">订单ID：</span>
+      <el-input placeholder="请输入订单ID" class="goods_search" v-model="myinput"></el-input>
+      <span class="myspan">会员姓名：</span>
+      <el-input placeholder="请输入会员姓名" class="goods_search" v-model="myinput1"></el-input>
+      <span class="myspan">商品类型：</span>
+      <el-date-picker v-model="value1" type="daterange" align="right" unlink-panels range-separator="至"
+        start-placeholder="开始日期" end-placeholder="结束日期" value-format="yyyy-MM-dd"
+        :default-time="['00:00:00', '23:59:59']" :picker-options="pickerOptions2">
+      </el-date-picker>
+      <el-button class="search_button" @click="mysearch">搜索</el-button>
+    </div>
+    <el-table :data="orderData" style="width: 100%"  @selection-change="handleSelectionChange" ref="multipleTable" tooltip-effect="dark">
+      <el-table-column
+        type="selection"
+        width="55">
+      </el-table-column>
+      <el-table-column prop="o_id" label="订单ID"  align="center" width="80">
+      </el-table-column>
+      <el-table-column  label="订单详情"  align="center" >
+        <template slot-scope="scope" >
+          <div v-for="item in scope.row.detail">
+            <el-popover trigger="hover" placement="left">
+              <div class="mydd"><img :src="/myapi/+item.goodsSrc" alt="" class="myimg">
+                <p>{{ item.g_name }}<span class="mynum">X{{item.od_num}}</span></p></div>
+              <!--<p>住址: {{ scope.row.address }}</p>-->
+              <div slot="reference" class="name-wrapper">
+                <el-tag size="medium">{{ item.g_name }}</el-tag>
+              </div>
+            </el-popover>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="detail[0].username" label="会员姓名"  align="center" width="120">
+      </el-table-column>
+      <el-table-column  label="下单日期" align="center" >
+        <template slot-scope="scope" >
+            <i class="el-icon-time"></i>
+            <span  style="margin-left: 10px;">{{scope.row.detail[0].o_time | formatDate}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column  label="状态" align="center">
+        <template slot-scope="scope">
+        <div slot="reference" v-if="scope.row.detail[0].goodState==='未发货'" class="name-wrapper" >
+          <el-tag size="medium" class="notPay">{{ scope.row.detail[0].goodState }}</el-tag>
+        </div>
+          <div slot="reference" v-else class="name-wrapper" >
+            <el-tag size="medium" class="pay">{{ scope.row.detail[0].goodState }}</el-tag>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="detail[0].mysummati" label="订单合计" align="center" width="80">
+      </el-table-column>
+      <el-table-column prop="detail[0].u_name" label="收货人"  align="center">
+      </el-table-column>
+      <el-table-column prop="detail[0].u_tel" label="收货人电话" align="center">
+      </el-table-column>
+      <el-table-column prop="detail[0].address" label="收货地址" align="center">
+      </el-table-column>
+      <el-table-column prop="address" label="操作" >
+        <template slot-scope="scope">
+          <!--<el-button  icon="el-icon-edit" circle @click="mychange(scope.row)"></el-button>-->
+          <!--<el-button icon="el-icon-edit" circle @click="open5(scope.row)"></el-button>-->
+          <el-button icon="el-icon-edit"  circle @click="open5(scope.row)"></el-button>
+          <el-dialog title="提示" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
+            <div class="mydiv"><span for="" class="mylabel">收货人：</span>
+              <input type="text" v-model="toggleSele[1]" class="allinput" ref="inputNmae"></div>
+            <div class="mydiv"><span for="" class="mylabel">收货电话：</span>
+              <input type="text" v-model="toggleSele[2]" ref="inputTel" class="allinput"></div>
+            <div class="mydiv"><span for="" class="mylabel">收货地址：</span>
+              <input type="text" v-model="toggleSele[3]" ref="inputAddress" class="allinput">
+            </div>
+            <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="modifyDate">确 定</el-button>
+      </span>
+          </el-dialog>
+
+        </template>
+
+      </el-table-column>
+    </el-table>
+    <div class="mybutton">
+      <el-button type="danger" round class="addgoods" @click="deliverGoods()">商品发货</el-button>
+    </div>
+
+    <div class="block">
+      <el-pagination
+        layout="prev, pager, next"
+        :total="pageNumber" @current-change="currentChange"  next-click="">
+      </el-pagination>
+    </div>
+  </div>
+</template>
+<script>
+  import {formatDate} from '../../config/common';
+  //import {changeData} from '../../config/getOrderDetail'
+
+export default{
+  data(){
+      return {
+        orderData:[],
+        curcmm:1,
+        pageNumber:0,
+        myinput:'',
+        myinput1:'',
+        value1:'',
+        pickerOptions2: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+        },
+        multipleSelection:[],
+        orderID:[],
+        dialogVisible: false,
+        toggleSele:[],
+        modifyArry:[]
+      }
+  },
+  mounted(){
+    var that=this;
+    that.myShowData=function () {
+      that.$http.get("/myapi/ordermanage/showData",{
+        params:{
+          page:that.curcmm,
+          oID:that.myinput,
+          userName:that.myinput1,
+          timeQuantum:that.value1,
+          myName:"",
+        }
+      })
+        .then(resp=>{
+          that.orderData = that.changeData(resp.data);
+          for(let i=0;i<that.orderData.length;i++){
+            if(that.orderData[i].detail[0].goodState===1){
+              that.orderData[i].detail[0].goodState="已发货"
+            }else if(that.orderData[i].detail[0].goodState===0){
+              that.orderData[i].detail[0].goodState="未发货"
+            }
+            that.orderData[i].detail[0].mysummati="￥"+that.orderData[i].detail[0].mysummati;
+          }
+
+        })
+        .catch(err=>{
+          console.log(err)
+        })
+    };
+    that.myPageNumber=function () {
+      that.$http.get("/myapi/ordermanage/showPage",{
+        params:{
+          oID:that.myinput,
+          userName:that.myinput1,
+          timeQuantum:that.value1
+        }
+      })
+        .then(resp=>{
+          that.pageNumber=resp.data*10;
+        })
+        .catch(err=>{
+          console.log(err)
+        })
+    };
+    that.updataGoodsState=function () {
+      that.$http.get("/myapi/ordermanage/updataState",{
+          params:{
+              idArry:this.orderID
+          }
+      })
+        .then(resp=>{
+          this.$alert(resp.data, '提示', {
+            confirmButtonText: '确定',
+          });
+        })
+        .catch(err=>{
+            console.log(err)
+        })
+    },
+    that.modifyDa=function () {
+      that.$http.get("/myapi/ordermanage/modifDate",{
+          params:{
+              mycent:this.modifyArry
+          }
+      })
+        .then(resp=>{
+          this.$alert(resp.data, '提示', {
+            confirmButtonText: '确定',
+          });
+        })
+        .catch(err=>{
+          console.log(err)
+        })
+    }
+    that.myPageNumber();
+    that.myShowData();
+
+
+  },
+  filters:{
+    formatDate(time) {
+      let date = new Date(time);
+      return formatDate(date, 'yyyy-MM-dd hh:mm')
+    }
+  },
+  methods:{
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done();
+        })
+        .catch(_ => {
+
+        });
+    },
+    //修改收货地址
+    modifyDate(){
+      this.dialogVisible = false;
+      this.modifyArry.push(this.$refs.inputNmae.value);
+      this.modifyArry.push(this.$refs.inputTel.value);
+      this.modifyArry.push(this.$refs.inputAddress.value);
+      this.modifyArry.push(Number(this.toggleSele[0]));
+      this.modifyDa();
+      this.myShowData();
+    },
+    //对话框填值
+    open5(obj) {
+      if(obj.detail[0].goodState==="未发货"){
+        this.dialogVisible = true;
+        this.toggleSele.push(obj.o_id);
+        this.toggleSele.push(obj.detail[0].u_name);
+        this.toggleSele.push(obj.detail[0].u_tel);
+        this.toggleSele.push(obj.detail[0].address);
+      }else {
+        this.$alert("该商品已发货不能再修改收货人信息了！", '提示', {
+          confirmButtonText: '确定',
+        });
+      }
+    },
+      //商品发货
+    deliverGoods() {
+        this.orderID=this._.uniq(this.multipleSelection);
+      if(this.orderID.length>0){
+        this.updataGoodsState();
+        this.myShowData();
+      }else {
+        this.$alert('没有选中商品哦！', '提示', {
+          confirmButtonText: '确定',
+        });
+      }
+    },
+    //修改发货地址
+    mychange(obj){
+        console.log(obj)
+    },
+    //页码跳转时
+    currentChange:function (obj) {
+      this.curcmm=obj;
+      this.myShowData();
+      },
+    //选中商品数组时
+    handleSelectionChange(val) {
+        val.forEach(row=>{
+            if(row.detail[0].goodState=="已发货"){
+            this.$refs.multipleTable.toggleRowSelection(row,false)
+            }else {
+              this.multipleSelection.push(row.o_id);
+            }
+        })
+    },
+    //选中多余的行数时
+    mysearch:function () {
+      this.myShowData()
+      this.myPageNumber()
+    },
+     changeData:function(data){
+    var obj = this._.groupBy(data,'o_id');
+    var keys = Object.keys(obj);
+    var newarr = new Array(keys.length);
+    for(var i = 0;i<newarr.length;i++){
+      newarr[i] = {o_id:keys[i],detail:obj[keys[i]]}
+    }
+       return newarr
+  }
+  }
+}
+</script>
+<style>
+  .myspan{
+    margin-left: 20px;
+    font-size: 10px;
+  }
+  .el-pager li.active{
+    color:#5d5386;
+  }
+  .el-pager li:hover {
+    color: #5d5386;
+  }
+  .el-pager li{
+    color: #aea9c3;
+  }
+  .mylabel{
+    width: 100px;
+    display: inline-block;
+  }
+  .el-button--default:hover{
+    background-color: #5d5386;
+    color: white;
+  }
+  .mydiv{
+    margin-top: 20px;
+  }
+  .mynum{
+    margin-left: 5px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+.goods_search{
+  width: 150px;
+}
+.allinput{
+  -webkit-appearance: none;
+  background-color: #fff;
+  background-image: none;
+  border-radius: 4px;
+  border: 1px solid #dcdfe6;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  color: #606266;
+  display: inline-block;
+  font-size: inherit;
+  height: 30px;
+  line-height: 40px;
+  outline: 0;
+  padding: 0 15px;
+  -webkit-transition: border-color .2s cubic-bezier(.645,.045,.355,1);
+  transition: border-color .2s cubic-bezier(.645,.045,.355,1);
+  width: 150px;
+}
+  .mydd{
+    text-align: center;
+    font-size: 10px;
+  }
+  .mybutton{
+    position: relative;
+    height: 100px;
+  }
+.inputBox{
+  width: 70%;
+  margin: 50px auto;
+}
+  body{
+    margin: 0;
+    background-color: rgba(255, 192, 203, 0.4);
+  }
+
+  .goodsTable{
+    width: 80%;
+    position:relative;
+    box-shadow:0 0 10px rgba(188, 143, 143, 0.57);
+    height: 100%;
+    text-align: center;
+    margin: 30px auto;
+    background-color: white;
+    padding: 40px;
+  }
+  .el-checkbox__input.is-checked .el-checkbox__inner, .el-checkbox__input.is-indeterminate .el-checkbox__inner {
+    background-color: #e76c90;
+    border-color: #e76c90;
+  }
+  .addgoods{
+    position: absolute;
+    left: 0;
+    bottom: 0;
+
+  }
+  .myimg{
+    width: 50px;
+    height: 50px;
+  }
+.el-tag{
+  background-color:white;
+  padding: 0 10px;
+  height: 30px;
+  text-align: center;
+  line-height: 28px;
+  font-size: 12px;
+  border-radius: 15px;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  white-space: nowrap;
+  border:none;
+}
+/*.el-tag--medium{
+  background-color:white;
+}*/
+  .notPay{
+    background-color: rgb(254,25,94);
+    color: white;
+  }
+  .pay{
+    background-color: rgb(8,166,195);
+    color: white;
+  }
+  .block{
+    position: absolute;
+    right:10%;
+    bottom: 25px;
+  }
+  .search_button {
+    margin-left: 50px;
+    background-color: rgb(93, 83, 134);
+    color: white;
+  }
+
+</style>

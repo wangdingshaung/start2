@@ -1,0 +1,22 @@
+<template>
+  <div class="chenli">
+    <tijiao></tijiao>
+  </div>
+</template>
+<script>
+  import tijiao from './tijiao.vue'
+  export default {
+    name: 'chenli',
+    data () {
+        return{}
+    },
+    components:{
+      tijiao
+    }
+  }
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+
+</style>

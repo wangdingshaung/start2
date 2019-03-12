@@ -1,0 +1,354 @@
+<template class="tenm">
+  <div class="goodsTable">
+    <p>商品列表</p>
+    <el-tooltip content="切换商品状态" placement="bottom" effect="light" class="toggle" >
+      <el-button icon="el-icon-sort" circle class="toggle" @click="handleAllstatus"  :plain="true" ></el-button>
+    </el-tooltip>
+    <hr>
+    <div class="inputBox">
+      <span>商品名称：</span>
+      <el-input placeholder="请输入商品名称" class="goods_search" v-model="searchData.name" ref="name"></el-input>
+      <span>商品价格：</span>
+      <el-input placeholder="请输入商品价格" class="goods_search" v-model="searchData.price"></el-input>
+      <span>商品类型：</span>
+      <el-input placeholder="请输入商品类型" class="goods_search" v-model="searchData.type"></el-input>
+      <span>商品状态：</span>
+      <el-input placeholder="请输入商品状态" class="goods_search" v-model="searchData.status"></el-input>
+      <el-button class="search_button" @click="search">搜索</el-button>
+    </div>
+    <el-table
+      :data="tableData"
+      style="width: 100%"
+      ref="multipleTable"
+      @selection-change="handleSelectionChange">
+      <el-table-column width="180" align="center" type="selection" >
+      </el-table-column>
+      <el-table-column
+        prop="g_id"
+        label="商品ID"
+        width="180"
+        align="center">
+      </el-table-column>
+      <el-table-column
+        label="商品图片"
+        width="180"
+        align="center">
+        <!--//遍历商品图片-->
+        <template slot-scope="scope"><img :src="scope.row.goodsSrc"/></template>
+      </el-table-column>
+      <el-table-column
+        prop="g_name"
+        label="商品名称"
+        width="200"
+        align="center" >
+      </el-table-column>
+      <el-table-column
+        prop="decoration"
+        label="商品类型"
+        width="200"
+        align="center">
+      </el-table-column>
+      <el-table-column
+        label="商品价格"g
+        width="180"
+        align="center">
+        <template slot-scope="scope">{{ scope.row.price | currency }}</template>
+      </el-table-column>
+      <el-table-column
+        prop="g_status"
+        label="商品状态"
+        width="100"
+        align="center">
+        <template slot-scope="scope">
+          <div slot="reference" v-if="scope.row.g_status==='销售中'" class="name-wrapper">
+            <el-tag size="medium" class="sale">{{ scope.row.g_status }}</el-tag>
+          </div>
+          <div slot="reference" v-else="scope.row.g_status==='已下架'" class="name-wrapper">
+            <el-tag size="medium" class="soldout">{{ scope.row.g_status }}</el-tag>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="handle"
+        label="操作"
+        align="center">
+        <template slot-scope="scope">
+          <router-link :to="{path:'/chenli/tijiao',query:{id:scope.row.g_id}}"><el-button icon="el-icon-edit" circle class="backcolorChange"></el-button></router-link>
+          <el-button icon="el-icon-view" circle class="backcolorChange"></el-button>
+          <span  slot="reference" v-if="scope.row.g_status==='销售中'">
+          <el-button icon="el-icon-sold-out" circle @click="handleStatus(scope.$index, scope.row)" class="backcolorChange"></el-button>
+          </span>
+          <span  slot="reference" v-else="scope.row.g_status==='已下架'">
+            <el-button icon="el-icon-goods" circle @click="handleStatus(scope.$index, scope.row)" class="backcolorChange"></el-button>
+          </span>
+          </template>
+      </el-table-column>
+    </el-table>
+    <router-link :to="{path:'/chenli/tijiao'}"><el-button type="danger" round class="addgoods">新增商品</el-button></router-link>
+    <div class="block">
+      <el-pagination
+        layout="prev, pager, next"
+        :total="total" class="yema"
+        @current-change="handleCurrentChange"  >
+      </el-pagination>
+    </div>
+  </div>
+</template>
+
+<script>
+  export default {
+    name: 'goods',
+    data() {
+      return {
+        current:1,
+        tableData: [],
+        searchData:{
+          name:"",
+          price:"",
+          type:"",
+          status:"",
+        },
+       multipleSelection: [],   //多选
+       total:0,
+        id:"",
+      }
+    },
+    mounted(){
+        var that=this;
+        that.getdata=function () {
+          that.$http.get("/myapi/goodsList/list",{
+            params:{
+                searchData:that.searchData,
+                page:that.current
+            }
+          })
+            .then(resp => {
+              that.total=resp.data.total*10;
+              that.tableData = resp.data.data;
+              for (let i in that.tableData) {    //替换图片路径
+                that.tableData[i].goodsSrc = resp.data.data[i].goodsSrc.replace(/images/g, "/myapi/images");
+                if (that.tableData[i].g_status == "0") {
+                  //console.log(this.tableData[i].g_status);
+                  that.tableData[i].g_status = "销售中"
+                } else if (this.tableData[i].g_status == "1"){
+                  that.tableData[i].g_status = "已下架"
+                }
+              }
+            }).catch(err => {
+            console.log(err)
+          })
+        };
+        that.getdata();
+
+    },
+    methods:{
+      //封装弹出框为handle的函数
+      handle(value,content) {
+        var that=this;
+        const h = that.$createElement;
+        that.$msgbox({
+          title: '提示',
+          message: h('p', null, [
+            h('span', null, content)
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          beforeClose: (action, instance, done) => {
+            if (action === 'confirm') {
+              instance.confirmButtonLoading = true;
+              instance.confirmButtonText = '执行中...';
+              that.$http.get("/myapi/goodslist/updateData",{
+                params:{value}
+              }).then(resp=>{
+//                console.log(resp.data)
+                that.$message({
+                  type: 'info',
+                  message: resp.data
+                });
+                that.getdata();
+              });
+              done();
+              setTimeout(() => {
+                instance.confirmButtonLoading = false;
+              }, 300);
+            } else {
+              done();
+            }
+          }
+        });
+
+      },
+
+      //查询
+      search(){
+        this.getdata();
+      },
+      //全选
+      handleSelectionChange(val) {
+        this.multipleSelection = val;
+      },
+
+      //批量改变状态
+      handleAllstatus(){
+          var selected=this.multipleSelection;
+          console.log(selected);
+        if(selected.length===0){
+          this.$message('你还没有选中任何商品');
+        }else{
+          for(var i=0;i<selected.length;i++){
+              console.log(selected[i].g_status);
+              if(selected[i].g_status.indexOf(selected[i].g_status)!=-1){
+                  this.$message("请选择状态一致的商品进行修改");
+                  break;
+              }else{
+                if(selected[i].g_status==="销售中"){
+                  this.handle(selected,"是否下架选中的所有商品");
+                }else if(selected[i].g_status==="已下架"){
+                  this.handle(selected,"是否重新上架选中的所有商品");
+                }
+              }
+
+          }
+        }
+
+      },
+
+      //展示当前页
+      handleCurrentChange(val){
+        this.current=val;
+        this.getdata();
+      },
+
+      //点击行后面的图标，改变状态
+      handleStatus(index,row){
+        var value={
+          g_id:row.g_id,
+          g_status:row.g_status
+        };                                                      //状态改变
+          if(row.g_status=="销售中"){                          //下架操作
+            this.handle(value,"是否下架此商品")
+          }else if(row.g_status=="已下架"){                       //重新上架
+            this.handle(value,"是否重新上架此商品")
+          }
+      }
+
+    }
+
+
+  }
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+
+.tenm{
+  background-color: rgba(188, 143, 143, 0.57);
+}
+  .goodsTable {
+    position: relative;
+    width:95%;
+    height: 100%;
+    margin: 30px auto;
+    box-shadow:0 0 10px rgba(188, 143, 143, 0.57);
+  }
+  hr{
+    height: 1px;
+    border: none;
+    background-color: rgba(188, 143, 143, 0.57);
+  }
+  .toggle{
+    margin-left: 250px;
+  }
+
+  img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .goods_search {
+    width: 150px;
+  }
+
+  .inputBox {
+    width: 80%;
+    margin: 60px 300px;
+  }
+
+  .search_button {
+    margin-left: 50px;
+    background-color: rgb(93, 83, 134);
+    color: white;
+  }
+  .addgoods {
+    margin: 50px 150px;
+  }
+
+  .yema {
+    position: absolute;
+    right: 100px;
+    bottom: 0;
+    padding-bottom: 20px;
+  }
+
+  span {
+    font-size: 10px;
+    color: #686868;
+  }
+.sale{
+  background-color: rgb(8,166,195);
+}
+  .soldout{
+    background-color: rgb(254,25,94);
+  }
+  .sale,.soldout{
+    color:white;
+    border: none;
+    border-radius: 20px;
+  }
+  .inputBox span{
+    margin-left: 20px;
+  }
+  .backcolorChange:hover{
+   background-color: rgb(93, 83, 134);
+    color:white;
+  }
+  .toggle{
+    position: absolute;
+    right: 50px;
+    top:0;
+  }
+
+
+</style>
+<style>
+  body{
+    margin: 0;
+    background-color: rgba(255, 192, 203, 0.4);
+  }
+  p{
+    margin-left: 50px;
+  }
+  .goodsTable{
+    background-color: white;
+
+    height: 100%;
+  }
+  .el-pager li.active {
+    color: rgb(93, 83, 134);
+    cursor: default;
+  }
+  .el-pager li:hover {
+    color: rgb(93, 83, 134);
+  }
+  .el-pagination {
+    white-space: nowrap;
+    padding: 2px 5px;
+    color: rgba(93, 83, 134, 0.42);
+    font-weight: 700;
+  }
+  .el-checkbox__input.is-checked .el-checkbox__inner, .el-checkbox__input.is-indeterminate .el-checkbox__inner {
+    background-color: #e76c90;
+    border-color: #e76c90;
+  }
+</style>

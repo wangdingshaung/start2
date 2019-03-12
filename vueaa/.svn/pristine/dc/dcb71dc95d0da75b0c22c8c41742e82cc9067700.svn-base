@@ -1,0 +1,114 @@
+<template>
+  <div class="chenjt">
+    <div class="small">
+      <canvas id="myChart2" width="400px" height="400px"></canvas>
+    </div>
+
+    <div class="abc">
+      <canvas id="myPieChart" width="400" height="400"></canvas>
+    </div>
+  </div>
+</template>
+
+<script>
+  import Chart from 'chart.js';
+  export default {
+    name: 'chenjt',
+    data () {
+      return {
+          mytype:[],
+          data:[]
+      }
+    },
+    mounted() {
+      var ctx2 = document.getElementById("myChart2");
+      var ctx = document.getElementById("myPieChart");
+      var that = this;
+        this.$http.get("/myapi/homeshow/home")
+          .then(resp=>{
+//              console.log(resp.data)
+              for(var i = 0;i<resp.data.length;i++){
+                this.mytype[i] = (parseInt(resp.data[i].num))
+              }
+              var myPieChart = new Chart(ctx,{
+                type: 'pie',
+                data: {
+                  datasets: [
+                    {
+                      backgroundColor:["rgba(225,10,10,0.1)","black"] ,
+                      borderColor: "rgba(225,103,110,1)",
+                      cutoutPercentage:50,
+                      borderWidth: 1,
+                      data:that.mytype
+                    }
+                  ]
+                },
+                options: {
+
+                }
+              });
+            }
+        );
+
+
+      this.$http.get("/myapi/homeshow/huiyuan")
+        .then(resp=>{
+            for(var i = 0;i<resp.data.length;i++){
+              this.mytype[i] = (parseInt(resp.data[i].num))
+            }
+          var myChart2 = new Chart(ctx2, {
+            type: "line",
+            data: {
+              labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+              datasets: [
+                {
+                  label: "test1",
+                  backgroundColor: "rgba(225,10,10,0.3)",
+                  borderColor: "rgba(225,103,110,1)",
+                  borderWidth: 1,
+                  pointStrokeColor: "#fff",
+                  pointStyle: "crossRot",
+                  data: that.mytype,
+                  cubicInterpolationMode: "monotone",
+                  spanGaps: "false",
+                  fill: "false"
+                }
+              ]
+            },
+            options: {
+
+            }
+          });
+          }
+        );
+
+
+
+    }
+
+
+  }
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+
+  .el-menu-vertical-demo:hover .aaa{
+    color: #2c304d;
+  }
+  .el-menu-vertical-demo:hover i{
+    color: #e76c90;
+  }
+  .small {
+    width: 500px;
+    height: 500px;
+  }
+  .abc{
+    width: 500px;
+    height: 500px;
+  }
+  .chenjt{
+    margin: auto;
+  }
+
+</style>

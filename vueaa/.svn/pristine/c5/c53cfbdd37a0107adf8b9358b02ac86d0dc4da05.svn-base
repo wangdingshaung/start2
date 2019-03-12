@@ -1,0 +1,224 @@
+<template>
+  <div id="hdtijiao">
+    <div class="p">
+      <p class="span">添加用户评论</p>
+    </div>
+    <div class="mysform">
+      <el-form ref="form" :model="form" label-width="80px">
+        <el-form-item label="用户账号" class="inputab">
+          <el-input v-model="form.user" class="inputa"></el-input>
+        </el-form-item>
+        <el-form-item label="用户职业" class="inputab">
+          <el-input v-model="form.name" class="inputa"></el-input>
+        </el-form-item>
+        <el-form-item label="用户评论" class="inputab">
+          <el-input type="textarea" v-model="form.content" class="inputa"></el-input>
+        </el-form-item>
+        <div class="hdtupian">
+          <el-upload
+            action="/myapi/createGoods/addshow"
+            list-type="picture-card"
+            ref="upload"
+            :file-list="fileList"
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleRemove"
+            :auto-upload="false"
+            :on-success="success"
+            :submit="submitUpload"
+            :data="form">
+            <i class="el-icon-plus"></i>
+          </el-upload>
+          <el-dialog :visible.sync="dialogVisible">
+            <img width="100%" :src="dialogImageUrl" alt="">
+          </el-dialog>
+        </div>
+        <el-form-item class="butdivs">
+          <el-button type="primary" class="btn1" @click="submitUpload" >提交</el-button>
+          <el-button class="btn2">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+    <!--<div class="hdtupian">-->
+      <!--<el-upload-->
+        <!--action="/myapi/createGoods/addshow"-->
+        <!--list-type="picture-card"-->
+        <!--ref="upload"-->
+        <!--:file-list="fileList"-->
+        <!--:on-preview="handlePictureCardPreview"-->
+        <!--:on-remove="handleRemove"-->
+        <!--:on-success="success"-->
+        <!--:auto-upload="false"-->
+        <!--:submit="submitUpload"-->
+        <!--:data="form"-->
+        <!--&gt;-->
+        <!--<i class="el-icon-plus"></i>-->
+      <!--</el-upload>-->
+      <!--<el-dialog :visible.sync="dialogVisible">-->
+        <!--<img width="100%" :src="dialogImageUrl" alt="">-->
+      <!--</el-dialog>-->
+    <!--</div>-->
+  </div>
+</template>
+
+<script>
+  export default {
+    name: 'hdtijiao',
+    data () {
+      return {
+        importFileUrl: '/myapi/createGoods/addshow',
+        fileList:[],
+        form: {
+          user: '',
+          name: '',
+          content: '',
+        },
+        dialogImageUrl: '',
+        dialogVisible: false,
+      }
+      },
+    methods: {
+      handleRemove(file, fileList) {
+        console.log(file, fileList);
+      },
+      handlePictureCardPreview(file) {
+        this.dialogImageUrl = file.url;
+        this.dialogVisible = true;
+      },
+      submitUpload() {
+        this.asd=true
+        this.$refs.upload.submit();
+      },
+      success(response, file, fileList){
+       if(response=="您输入的账户不存在"){
+           alert("您输入的账户不存在")
+         this.$refs.upload.clearFiles()
+       }
+        else if(response=="上传成功"){
+         alert("上传成功")
+         this.$router.push("/huodong")
+       }
+      },
+
+
+
+    }
+  }
+
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+  #hdtijiao{
+    background: #ffffff;
+    box-shadow:0 0 10px rgba(188, 143, 143, 0.57);
+    width: 95%;
+    margin: 2% auto;
+    line-height: 40px;
+  }
+  .mysform{
+    width: 80%;
+    margin: 40px auto;
+  }
+.span{
+  margin-left: 50px;
+}
+  .p{
+    border-bottom: 1px solid rgba(188, 143, 143, 0.57);
+    line-height: 50px;
+    height: 50px;
+  }
+  .butdivs{
+    display: block;
+    width:350px;
+    /*text-align: center;*/
+    margin: 20px auto;
+    padding-bottom: 60px;
+    padding-top: 60px;
+  }
+
+  .btn1{
+    background: #e23f83;
+    width: 80px;
+    background: linear-gradient(to right,#e23f83 0%,#ea5844 100%);
+    background-size: 200% auto;
+    font-weight: 600;
+    transition: 0.5s;
+    color: #fff;
+    border: 0 none;
+    border-radius: 20px;
+    padding: 12px 20px;
+  }
+  .btn2{
+    background: #e4e8f0;
+    width: 80px;
+    border: none;
+    border-radius: 20px;
+    color: #2c304d;
+    margin-left: 50px;
+  }
+
+  .hdtupian{
+    display: inline-block;
+    margin-left: 80px;
+    margin-top: 20px;
+  }
+  .inputa{
+    width: 800px;
+    padding: 10px auto;
+    margin: 10px auto;
+  }
+
+</style>
+<!--<style>-->
+  <!--.el-switch.is-checked .el-switch__core {-->
+    <!--border-color: #5c5287;-->
+    <!--background-color: #5c5287;-->
+  <!--}-->
+  <!--.el-upload-list&#45;&#45;picture .el-upload-list__item-status-label {-->
+    <!--position: absolute;-->
+    <!--right: -17px;-->
+    <!--top: -7px;-->
+    <!--width: 46px;-->
+    <!--height: 26px;-->
+    <!--background: #5c5287;-->
+    <!--text-align: center;-->
+    <!-- -webkit-transform: rotate(45deg);-->
+    <!--transform: rotate(45deg);-->
+    <!-- -webkit-box-shadow: 0 1px 1px #ccc;-->
+    <!--box-shadow: 0 1px 1px #ccc;-->
+  <!--}-->
+  <!--.el-form-item__content {-->
+    <!--margin-left: 0 !important;-->
+  <!--}-->
+  <!--.el-form-item__label {-->
+    <!--display: inline-block;-->
+  <!--}-->
+  <!--.el-form-item__content {-->
+    <!--display: inline-block;-->
+    <!--/*width: 1000px;*/-->
+
+  <!--}-->
+  <!--.el-form-item {-->
+    <!--/*text-align: center;*/-->
+    <!--font-size: 0;-->
+    <!--width: 1100px;-->
+    <!--margin: 0 auto;-->
+  <!--}-->
+  <!--.el-input__inner {-->
+    <!--width: 1000px;-->
+  <!--}-->
+  <!--.el-textarea__inner {-->
+    <!--width: 1000px;-->
+  <!--}-->
+  <!--.upload-demo[data-v-57fabab2] {-->
+    <!--width: 1100px;-->
+    <!--margin: 0 auto;-->
+  <!--}-->
+  <!--.el-radio__input.is-checked .el-radio__inner {-->
+    <!--border-color: #5c5287;-->
+    <!--background-color: #5c5287;-->
+  <!--}-->
+  <!--.el-radio__input.is-checked+.el-radio__label {-->
+    <!--color: #5c5287;-->
+  <!--}-->
+<!--</style>-->

@@ -1,0 +1,124 @@
+<template>
+  <div class="overlay" v-show = "isactive">
+    <div class="con">
+      <div>
+           <p class="pp">修改:</p>
+       </div>
+       <div>
+          <div >修改时间：<input type="text" class="motaidiv" id="kuang1"> </div>
+          <div  >修改标题：<input type="text" class="motaidiv" id="kuang2"></div>
+       </div>
+        <div class="anniudiv">
+          <input type="button" @click="changeActive" value="取消" class="quxiao">
+          <input type="button" @click="modify" value="保存" class="baocun">
+        </div>
+    </div>
+  </div>
+</template>
+<script>
+
+
+  export default {
+    inject:['reload'],
+    props: ['list','isactive'],
+    computed:{
+      modifylist() {
+          return this.list;
+        }
+
+    },
+    data() {
+      return {
+          from:{
+              date:"",
+              name:""
+          },
+
+      }
+    },
+    methods: {
+      changeActive() {
+        this.$emit('change'); // 关闭弹层，修改isactive值
+      },
+      modify() {
+        this.from.name = $("#kuang2").val();
+        this.from.date = $("#kuang1").val();
+        this.$emit('modify',this.modifylist); // 将修改后的数据传递给父组件
+        console.log(this.modifylist.b_id)
+        this.$http.get("/myapi/allBoke/xiugai",{
+            params:{gainame:this.from.name,
+              gaidate:this.from.date,
+              id:this.modifylist.b_id
+            }
+        }).then( resp => {
+          if (resp.status === 200) {
+            console.log("修改成功");
+          }
+        });
+        this.reload()
+      }
+
+    },
+  }
+
+</script>
+
+<style lang="css" scoped>
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 6;
+    background: rgba(0, 0, 0, 0.7);
+
+  }
+  .overlay td:first-child {
+    width: 66px;
+  }
+  .overlay .con {
+    position: absolute;
+    width: 420px;
+    min-height: 250px;
+    background: #fff;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate3d(-50%, -50%, 0);
+    transform: translate3d(-50%, -50%, 0);
+    /*margin-top: -150px;*/
+    padding: 20px;
+    border-radius: 5px;
+  }
+  .pp{
+    font-size: 20px;
+  }
+  .motaidiv{
+    width: 300px;
+    height: 30px;
+    border-radius: 3px;
+  }
+  .anniudiv{
+    margin-top: 40px;
+    width: 140px;
+    margin-left: 270px;
+  }
+  .baocun{
+    width: 56px;
+    height: 28px;
+    background-color: #F78989;
+    color: white;
+    border: 1px solid #F78989;
+    border-radius: 3px;
+  }
+  .quxiao{
+    width: 56px;
+    height: 28px;
+    color: black;
+    background-color: white;
+    border-radius: 3px;
+    border: 1px solid gray;
+  }
+</style>
+
+

@@ -1,0 +1,285 @@
+<template>
+  <div class="goodsTable">
+    <div class="inputBox">
+      <span>订单ID：</span>
+      <el-input placeholder="请输入订单ID" class="goods_search" v-model="myinput"></el-input>
+      <span>会员姓名：</span>
+      <el-input placeholder="请输入会员姓名" class="goods_search" v-model="myinput1"></el-input>
+      <span>商品类型：</span>
+      <el-date-picker v-model="value1" type="daterange" align="right" unlink-panels range-separator="至"
+        start-placeholder="开始日期" end-placeholder="结束日期" value-format="yyyy-MM-dd"
+        :default-time="['00:00:00', '23:59:59']" :picker-options="pickerOptions2">
+      </el-date-picker>
+      <el-button class="search_button" @click="mysearch">搜索</el-button>
+    </div>
+    <el-table :data="orderData" style="width: 100%">
+      <el-table-column
+        type="selection"
+        width="55">
+      </el-table-column>
+      <el-table-column prop="o_id" label="订单ID"  align="center" width="80">
+      </el-table-column>
+      <el-table-column  label="订单详情"  align="center" >
+        <template slot-scope="scope" >
+          <div v-for="item in scope.row.detail">
+            <el-popover trigger="hover" placement="left">
+              <div class="mydd"><img :src="/myapi/+item.goodsSrc" alt="" class="myimg">
+                <p>{{ item.g_name }}<span class="mynum">X{{item.od_num}}</span></p></div>
+              <!--<p>住址: {{ scope.row.address }}</p>-->
+              <div slot="reference" class="name-wrapper">
+                <el-tag size="medium">{{ item.g_name }}</el-tag>
+              </div>
+            </el-popover>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="detail[0].username" label="会员姓名"  align="center" width="150">
+      </el-table-column>
+      <el-table-column  label="下单日期" align="center" >
+        <template slot-scope="scope" >
+            <i class="el-icon-time"></i>
+            <span  style="margin-left: 10px;">{{scope.row.detail[0].o_time | formatDate}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column  label="状态" align="center">
+        <template slot-scope="scope">
+        <div slot="reference" v-if="scope.row.detail[0].goodState==='未发货'" class="name-wrapper" >
+          <el-tag size="medium" class="notPay">{{ scope.row.detail[0].goodState }}</el-tag>
+        </div>
+          <div slot="reference" v-else class="name-wrapper" >
+            <el-tag size="medium" class="pay">{{ scope.row.detail[0].goodState }}</el-tag>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column prop="detail[0].mysummati" label="订单合计" align="center" width="80">
+      </el-table-column>
+      <el-table-column prop="detail[0].u_name" label="收货人"  align="center">
+      </el-table-column>
+      <el-table-column prop="detail[0].u_tel" label="收货人电话" align="center">
+      </el-table-column>
+      <el-table-column prop="detail[0].address" label="收货地址" align="center">
+      </el-table-column>
+      <el-table-column prop="address" label="操作">
+        <el-row>
+          <el-button  icon="el-icon-edit" circle></el-button>
+        </el-row>
+      </el-table-column>
+    </el-table>
+    <div class="mybutton">
+      <el-button type="danger" round class="addgoods" @click="toggleSelection()">商品发货</el-button>
+    </div>
+
+    <div class="block">
+      <el-pagination
+        layout="prev, pager, next"
+        :total="pageNumber" @current-change="currentChange"  next-click="">
+      </el-pagination>
+    </div>
+  </div>
+</template>
+<script>
+  import {formatDate} from '../../config/common';
+  //import {changeData} from '../../config/getOrderDetail'
+
+export default{
+  data(){
+      return {
+        orderData:[],
+        curcmm:1,
+        pageNumber:0,
+        myinput:'',
+        myinput1:'',
+        value1:'',
+        pickerOptions2: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+        },
+      }
+  },
+  mounted(){
+    var that=this;
+    that.myShowData=function () {
+      that.$http.get("/myapi/ordermanage/showData",{
+        params:{
+          page:that.curcmm,
+          oID:that.myinput,
+          userName:that.myinput1,
+          timeQuantum:that.value1,
+          myName:"",
+        }
+      })
+        .then(resp=>{
+
+//          that.orderData=resp.data
+          that.orderData = that.changeData(resp.data);
+          for(let i=0;i<that.orderData.length;i++){
+            if(that.orderData[i].detail[0].goodState===1){
+              that.orderData[i].detail[0].goodState="已发货"
+            }else if(that.orderData[i].detail[0].goodState===0){
+              that.orderData[i].detail[0].goodState="未发货"
+            }
+            that.orderData[i].detail[0].mysummati="￥"+that.orderData[i].detail[0].mysummati;
+          }
+          //that.orderData=resp.data
+          console.log(that.orderData)
+        })
+        .catch(err=>{
+          console.log(resp.data)
+        })
+    }
+    that.myPageNumber=function () {
+      that.$http.get("/myapi/ordermanage/showPage",{
+        params:{
+          oID:that.myinput,
+          userName:that.myinput1,
+          timeQuantum:that.value1
+        }
+      })
+        .then(resp=>{
+          that.pageNumber=resp.data*10;
+        })
+        .catch(err=>{
+          console.log(resp.data)
+        })
+    };
+    that.myPageNumber()
+    that.myShowData()
+
+  },
+  filters:{
+    formatDate(time) {
+      let date = new Date(time);
+      return formatDate(date, 'yyyy-MM-dd hh:mm')
+    }
+  },
+  methods:{
+    toggleSelection(rows) {
+        console.log(this.$refs)
+      /*if (rows) {
+        rows.forEach(row => {
+          this.$refs.multipleTable.toggleRowSelection(row);
+        });
+      } else {
+        this.$refs.multipleTable.clearSelection();
+      }*/
+    },
+    currentChange:function (obj) {
+      this.curcmm=obj;
+      this.myShowData();
+      },
+    mysearch:function () {
+      this.myShowData()
+      this.myPageNumber()
+    },
+     changeData:function(data){
+    var obj = this._.groupBy(data,'o_id');
+    var keys = Object.keys(obj);
+    var newarr = new Array(keys.length);
+    for(var i = 0;i<newarr.length;i++){
+      newarr[i] = {o_id:keys[i],detail:obj[keys[i]]}
+    }
+       return newarr
+  }
+
+  }
+
+}
+</script>
+<style>
+  .el-pager li.active{
+    color:#5d5386;
+  }
+  .el-pager li:hover {
+    color: #5d5386;
+  }
+  .el-pager li{
+    color: #aea9c3;
+  }
+  .mynum{
+    margin-left: 5px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+.goods_search{
+  width: 150px;
+}
+  .mydd{
+    text-align: center;
+    font-size: 10px;
+  }
+  .mybutton{
+    position: relative;
+    height: 100px;
+  }
+.inputBox{
+  width: 70%;
+  margin: 15px auto;
+}
+  .goodsTable{
+    width: 100%;
+    text-align: center;
+    margin: auto
+  }
+  .addgoods{
+    position: absolute;
+    left: 0;
+    bottom: 0;
+
+  }
+  .myimg{
+    width: 50px;
+    height: 50px;
+  }
+.el-tag{
+  background-color:white;
+  padding: 0 10px;
+  height: 30px;
+  text-align: center;
+  line-height: 28px;
+  font-size: 12px;
+  border-radius: 15px;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  white-space: nowrap;
+  border:none;
+}
+/*.el-tag--medium{
+  background-color:white;
+}*/
+  .notPay{
+    background-color: rgb(254,25,94);
+    color: white;
+  }
+  .pay{
+    background-color: rgb(8,166,195);
+    color: white;
+  }
+  .block{
+    position: absolute;
+    right:10%;
+
+  }
+</style>

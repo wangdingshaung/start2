@@ -1,0 +1,213 @@
+<template class="abs">
+  <div class="laowang">
+    <div class="headers">
+      <span class="headeh3">会员信息</span>
+    </div>
+    <div class="txt">
+      <shuosuo @transferUser="getUser" class="shousuo"></shuosuo>
+      <el-button class="search_button" @click="shuosuo">搜索</el-button>
+    </div>
+
+    <div class="laowanga">
+      <el-table
+        :data="tableData"
+        style="width:95%;margin: auto">
+        <div class="row">
+        <el-table-column
+          prop="u_id"
+          label="ID"
+
+          align="center"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="username"
+          label="账户"
+          width="180"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          prop="tel"
+          label="电话"
+
+          align="center">
+        </el-table-column>
+        <el-table-column
+          prop="sex"
+          label="性别"
+          width="180"
+          align="center">
+        </el-table-column>
+        <el-table-column
+
+          label="出生日期"
+
+          align="center">
+          <template slot-scope="scope">{{scope.row.time?new Date(scope.row.time).toLocaleDateString():'-'}}</template>
+        </el-table-column>
+        <el-table-column
+          prop="u_num"
+          label="账户昵称"
+
+          align="center">
+        </el-table-column>
+        <el-table-column
+          prop="u_email"
+          label="邮箱"
+
+          align="center">
+        </el-table-column>
+        <el-table-column
+          label="注册时间"
+        
+          align="center">
+          <template slot-scope="scope">{{scope.row.u_date?new Date(scope.row.u_date).toLocaleDateString():'-'}}</template>
+        </el-table-column>
+        </div>
+      </el-table>
+    </div>
+      <fenye :le="len" :my="yea" @transferUser="fetUser" class="fenyea"></fenye>
+  </div>
+</template>
+
+<script>
+  import shuosuo from "./shuosuo.vue"
+  import fenye from "./fenye.vue"
+  export default {
+    name: 'laowang',
+    components:{
+      shuosuo,
+      fenye,
+    },
+    data () {
+      return {
+        tableData:[],
+        table:[],
+        auser:"",
+        len:0,//共多少内容
+        yea:8,//每页几条内容
+        ye:1,//第几页
+      }
+    },
+    mounted(){
+     this.bianl()
+    },
+    methods:{
+        getUser(msg) {
+            this.ye = 1;
+            this.auser=msg
+          console.log(this.auser)
+          this.bianl()
+        },
+      fetUser(msh) {
+        //页码的值
+        this.ye=msh;
+        console.log(this.ye+"-3")
+        this.fy()
+      },
+      fy(){
+            //分页程序
+            let s=(this.ye-1)*this.yea
+        console.log(s)
+        let x =this.ye*this.yea
+        console.log(x)
+        this.tableData=this.table.slice(s,x)
+      },
+      shuosuo(){
+        this.$http.get("/myapi/user/suoshow",{
+          params:{
+            adg:this.auser
+          }
+        })
+          .then(resp=>{
+            this.len=resp.data.length;
+            this.tableData=resp.data;
+            this.table=resp.data;
+            console.log(resp.data);
+            console.log(this.tableData);
+            this.fy()
+          }).catch(err=>{
+          console.log(err)
+        })
+      },
+      bianl(){
+        this.$http.get("/myapi/user/usershow")
+          .then(resp=>{
+            this.len=resp.data.length
+            this.tableData=resp.data;
+            this.table=resp.data;
+            this.fy()
+          }).catch(err=>{
+          console.log(err)
+        });
+      }
+    }
+  }
+
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style>
+  .abs{
+    background-color: #f2f3f8;
+  }
+  .laowang{
+    width: 95%;
+    margin: 2% auto;
+    box-shadow:0 0 10px rgba(188, 143, 143, 0.57);
+    background-color: white;
+  }
+  .shousuo{
+    width: 50%;
+    display: inline-block;
+  }
+ .fenyea{
+    width: 20%;
+    margin-left: 80%;
+   padding: 40px auto;
+   height: 50px;
+   margin-top: 20px;
+  }
+  .el-button:focus, .el-button:hover{
+    background-color: rgb(93, 83, 134);
+    color: white;
+  }
+  .headers{
+    border-bottom: 1px solid rgba(188, 143, 143, 0.57);
+    color: black;
+    padding: 5px 5px;
+    height: 50px;
+    line-height: 50px;
+  }
+  .headeh3{
+    margin-left: 50px;
+  }
+  .search_button {
+    margin-left: 50px;
+    background-color: rgb(93, 83, 134);
+    color: white;
+    display: inline-block;
+  }
+  .txt{
+    margin: 40px auto 40px 70%;
+  }
+</style>
+<style>
+  .el-pager li.active {
+    color:#5d5386;
+    cursor: default;
+  }
+  .el-pagination {
+    white-space: nowrap;
+    padding: 2px 5px;
+    color: #bfc3ca;
+    font-weight: 700;
+  }
+  .el-pager li:hover {
+    color:#5d5386;
+  }
+  .el-table tr{
+    padding: 12px auto;
+    height: 46px;
+  }
+</style>

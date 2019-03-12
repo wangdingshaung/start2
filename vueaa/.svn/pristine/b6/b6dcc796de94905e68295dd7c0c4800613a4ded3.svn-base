@@ -1,0 +1,191 @@
+<template class="abs">
+  <div class="laowang">
+    <div class="headers">
+      <span class="headeh3">会员信息</span>
+    </div>
+    <shuosuo @transferUser="getUser" class="shousuo"></shuosuo>
+    <div class="laowanga">
+      <el-table
+        :data="tableData"
+        style="width:100%">
+        <div class="row">
+        <el-table-column
+          prop="u_id"
+          label="ID"
+          width="180"
+          align="center"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="username"
+          label="账户"
+          width="180"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          prop="tel"
+          label="电话"
+          width="180"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          prop="sex"
+          label="性别"
+          width="180"
+          align="center">
+        </el-table-column>
+        <el-table-column
+
+          label="出生日期"
+          width="180"
+          align="center">
+          <template slot-scope="scope">{{scope.row.time?new Date(scope.row.time).toLocaleDateString():'-'}}</template>
+        </el-table-column>
+        <el-table-column
+          prop="u_num"
+          label="账户昵称"
+          width="180"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          prop="u_email"
+          label="邮箱"
+          width="180"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          label="注册时间"
+          width="180"
+          align="center">
+          <template slot-scope="scope">{{scope.row.u_date?new Date(scope.row.u_date).toLocaleDateString():'-'}}</template>
+        </el-table-column>
+        </div>
+      </el-table>
+    </div>
+    <div class="fenye1">
+      <fenye :le="len" :my="yea" @transferUser="fetUser" class="fenyea"></fenye>
+    </div>
+  </div>
+</template>
+
+<script>
+  import shuosuo from "./shuosuo.vue"
+  import fenye from "./fenye.vue"
+  export default {
+    name: 'laowang',
+    components:{
+      shuosuo,
+      fenye,
+    },
+    data () {
+      return {
+        tableData:[],
+        table:[],
+        auser:"",
+        len:0,//共多少内容
+        yea:8,//每页几条内容
+        ye:1,//第几页
+      }
+    },
+    mounted(){
+      this.$http.get("/myapi/user/usershow")
+        .then(resp=>{
+            this.len=resp.data.length
+          this.tableData=resp.data;
+          this.table=resp.data;
+          this.fy()
+        }).catch(err=>{
+        console.log(err)
+      });
+    },
+    methods:{
+        getUser(msg) {
+            this.ye = 1;
+            this.auser=msg
+          console.log(this.auser)
+          this.$http.get("/myapi/user/suoshow",{
+            params:{
+                adg:this.auser
+            }
+          })
+            .then(resp=>{
+              this.len=resp.data.length;
+              this.tableData=resp.data;
+              this.table=resp.data;
+              console.log(resp.data);
+              console.log(this.tableData);
+              this.fy()
+            }).catch(err=>{
+            console.log(err)
+          })
+        },
+      fetUser(msh) {
+        //页码的值
+        this.ye=msh;
+        console.log(this.ye+"-3")
+        this.fy()
+      },
+      fy(){
+            //分页程序
+            let s=(this.ye-1)*this.yea
+        console.log(s)
+        let x =this.ye*this.yea
+        console.log(x)
+        this.tableData=this.table.slice(s,x)
+      }
+    }
+  }
+
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+  .abs{
+    background-color: #f2f3f8;
+  }
+
+  .laowang{
+    width: 95%;
+    margin: 2% auto;
+
+    box-shadow:0 0 10px rgba(188, 143, 143, 0.57);
+    background-color: white;
+  }
+  .shousuo{
+    margin: 20px auto;
+    width: 10%;
+    margin-left: 80%;
+  }
+  .fenye1 .fenyea{
+    width: 20%;
+    margin-left: 80%;
+    padding-top: 40px;
+  }
+  .headers{
+    border-bottom: 1px solid rgba(188, 143, 143, 0.57);
+    color: black;
+    padding: 5px 5px;
+  }
+  .headeh3{
+    margin-left: 50px;
+  }
+</style>
+<style scoped>
+  .el-pager li.active {
+    color:#5d5386;
+    cursor: default;
+  }
+  .el-pagination {
+    white-space: nowrap;
+    padding: 2px 5px;
+    color: #bfc3ca;
+    font-weight: 700;
+  }
+  .el-pager li:hover {
+    color:#5d5386;
+  }
+  .el-table tr{
+    padding: 12px auto;
+    height: 46px;
+  }
+</style>

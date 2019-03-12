@@ -1,0 +1,92 @@
+<template>
+
+    <div class="login">
+      <div class="divimg">
+
+      </div>
+      <div  class="div1">
+        <div class="zh">
+          <input type="text" v-model="username">
+        </div>
+        <div class="mm">
+          <input type="password" v-model="password">
+        </div>
+        <el-button @click="mylogin">登录</el-button>
+      </div>
+
+    </div>
+
+
+</template>
+
+<script>
+
+  export default {
+    name: 'login',
+    data () {
+      return{
+          username:"",
+          password:""
+      }
+    },
+      methods:{
+        mylogin(){
+            this.$store.dispatch("login",{
+                username:this.username,
+                password:this.password
+            })
+        }
+      },
+    props:[
+        "loginzt"
+    ]
+  }
+
+
+
+</script>
+
+
+<style scoped>
+
+  .login{
+    width: 100%;
+    /*margin-top:40px;*/
+    /*padding-left: 200px;*/
+    z-index: 99;
+    overflow: hidden;
+  }
+  .divimg{
+    width: 1000px;
+    height: 100%;
+    background-image: url("img/01.jpg");
+    background-size: 100% 100%;
+    display: inline-block;
+    vertical-align:top;
+    float: left;
+
+  }
+  .div1{
+    /*border: solid 1px red;*/
+    vertical-align:top;
+    display: inline-block;
+    width: 600px;
+    height: 600px;
+    text-align: center;
+    margin-top: 300px;
+  }
+  .zh,.mm{
+    font-size: 25px;
+    margin-bottom: 80px;
+
+  }
+  input{
+    width: 455px;
+    height: 42px;
+    border: none;
+    border-bottom: solid 1px red;
+    background-color: rgba(0,0,0,.1);
+  }
+
+
+</style>

@@ -1,0 +1,198 @@
+<template>
+  <div>
+    <!--<router-link to="/xurun/kongbaitiaozhuang" replace>-->
+
+    <!--</router-link>-->
+    <el-table :data="tableData.filter(data => !search || scope.row.b_name.toLowerCase().includes(search.toLowerCase()))" style="width: 100%">
+      <el-table-column label="日期" >
+        <template slot-scope="scope">
+          <i class="el-icon-time"></i>
+        <span v-for="z in scope.row.b_date ">{{ z }}</span>
+          </template>
+      </el-table-column>
+
+      <el-table-column label="标题" >
+        <template slot-scope="scope"  >
+          <span slot="reference" class="name-wrapper" v-for="g in scope.row.b_name">
+        {{ g }}
+        </span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="作者" >
+        <template slot-scope="scope"  >
+          <span slot="reference" class="name-wrapper" v-for="y in scope.row.b_author">
+        {{ y }}
+        </span>
+        </template>
+      </el-table-column>
+
+
+
+      <el-table-column align="right">
+        <template slot-scope="scope">
+          <el-button
+            size="mini"
+            @click="showOverlay(scope.$index, scope.row)">修改</el-button>
+          <el-button
+            size="mini"
+            type="danger"
+            @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <div class="block">
+      <el-pagination
+        layout="prev, pager, next"
+        :total="pageNumber" @current-change="currentChange"  next-click="">
+      </el-pagination>
+    </div>
+    <!--模态框-->
+    <motaikuang :list='selectedlist' :isactive="isActive" v-cloak @change="changeOverlay" @modify="modify"></motaikuang>
+  </div>
+</template>
+
+<script>
+  import $ from 'jquery'
+  import fenyezujian from "./fenyezujian.vue"
+  import motaikuang from "./motaikuang.vue"
+  export default {
+    data() {
+      return {
+          tableData:[],
+          search: '',
+          pagesize: 10,
+          curpage:1,//当前页的页码
+        pageNumber:0,
+        curcmm:1,
+        isActive: false,
+        selected: -1,
+        selectedlist: {},
+        slist: [], //获取需要更改的内容
+        searchlist: [],
+
+      }
+    },
+
+    methods: {
+      currentChange(obj){
+          this.curpage=obj
+          this.showDate()
+      },
+//        修改
+      showOverlay(index, row) {
+        this.selected = index;
+//        console.log(this.selected); // 这是拿到的当前ID
+        this.selectedlist = this.tableData[index];//这是一行的数据 相当于row
+        console.log(this.selectedlist);
+        this.changeOverlay();
+        console.log(index, row);
+      },
+      created() {
+        this.setSlist(this.tableData);
+      },
+      changeOverlay() {
+        this.selected = -1;
+        this.isActive = !this.isActive;
+      },
+      // 点击保存按钮
+      modify(index, row) {
+        this.selected = index;
+          var bb = $("#kuang2").val();
+          var aa = $("#kuang1").val();
+        if (this.selected > -1) {
+            console.log(this.selected)
+//          Vue.set(this.tableData, this.selected, arr);
+          this.selected = -1;
+        } else {
+//          this.tableData.push(arr);
+        }
+        this.setSlist(this.tableData);
+        this.changeOverlay();
+      },
+
+      changeOverlay() {
+        this.selected = -1;
+        this.isActive = !this.isActive;
+      },
+      // 获取需要渲染到页面中的数据
+      setSlist(arr) {
+        this.slist = JSON.parse(JSON.stringify(arr));
+      },
+//      删除
+      handleDelete(index, row) {
+        this.$http.get("/myapi/allBoke/shanchushuju", {params :this.tableData[index].b_id}).then( resp => {
+            if (resp.status === 200) {
+              let index = this.tableData.indexOf(row);
+              this.tableData.splice(index, 1);
+              this.$message.success('删除成功');
+            }
+          });
+      }
+    },
+    //接口
+    mounted(){
+        this.showDate=function(){
+            this.$http.get("/myapi/allBoke/showblog",{
+            params:{
+                page:this.curpage
+            }
+        }).then(resp=>{
+                   this.tableData=resp.data;
+        }).catch(err=>{
+           console.log(err)
+        })
+        }
+      this.showmypage=function (obj) {
+        this.curcmm=obj;
+        this.$http.get("/myapi/allBoke/gettotal").then(resp=>{
+          this.pageNumber=resp.data*10;
+        }).catch(err=>{
+          console.log(err)
+        })
+      };
+        this.showmypage();
+        this.showDate()
+    },
+    components: {
+      fenyezujian,
+      motaikuang
+    }
+  }
+</script>
+
+<style>
+
+  .motaidiv{
+    margin: 10px 5px;
+    font-size: 18px;
+  }
+  .motaidiv input{
+    border-radius: 3px;
+    height: 25px;
+    width: 250px;
+  }
+  .el-message-box{
+    position: relative;
+  }
+  .but:hover{
+    cursor: pointer;
+  }
+  .but{
+    width: 58px;
+    height: 34px;
+    color: white;
+    background-color: #409EFF;
+    border: 1px solid #409EFF;
+    border-radius: 3px;
+    position: absolute;
+    right: 16px;
+    bottom: -38px;
+    z-index: 99;
+  }
+  .el-button{
+    position: relative;
+    z-index: 1;
+  }
+
+</style>

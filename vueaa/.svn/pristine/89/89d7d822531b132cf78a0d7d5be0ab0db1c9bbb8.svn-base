@@ -1,0 +1,12 @@
+/**
+ * Created by Administrator on 2019/2/21.
+ */
+const EXPRESS=require("express");
+const ROUTER=EXPRESS.Router();
+const GOODS = require("../controller/goodsController");
+ROUTER.get("/add",GOODS.add);
+
+
+module.exports=ROUTER;
+
+

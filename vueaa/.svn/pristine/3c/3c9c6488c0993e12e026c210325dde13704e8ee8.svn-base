@@ -1,0 +1,119 @@
+/**
+ * Created by Administrator on 2019/2/22.
+ */
+const DBCONFIG = require("../config/dbconfig");
+const PERPAGE=5;
+let bokeController = {
+    //渲染列表
+    showblog(req,resp){
+        DBCONFIG.connect("SELECT * FROM boke GROUP BY b_id;",
+            [],
+            (err,data)=>{
+                if(!err){
+                    resp.send(data)
+                }else {
+                    console.log(err)
+                }
+            }
+        )
+    },
+    //删除
+    shanchushuju(req,resp){
+        console.log(req.query[0]); //获取前台传过来的id
+        DBCONFIG.connect("DELETE FROM boke WHERE b_id=?",[req.query[0]],
+            (err,data)=>{
+                if(!err){
+                    // console.log(data);
+                    resp.send("删除成功");
+                }else{
+                    resp.send(err.message);
+                }
+            }
+        )
+    },
+
+    showbloga(req,resp){
+        // let param = [];
+        // param.push ((req.query.page-1)*PERPAGE);
+        // param.push(PERPAGE);
+        // console.log(param)
+        DBCONFIG.connect("SELECT * FROM boke WHERE b_id!= (SELECT MAX(b_id) FROM boke) GROUP BY b_id DESC limit 0,5;",
+            // param,
+            (err,data)=>{
+                if(!err){
+                    resp.send(data)
+                }else {
+                    console.log(err)
+                }
+            }
+        )
+    },
+
+
+    //获取分页
+
+    gettotal(req,resp){
+        DBCONFIG.connect("SELECT count(*) AS 'mytotal' FROM boke",
+            [],
+            (err,data)=>{
+                let resule = Math.ceil((data[0].mytotal-1)/PERPAGE);
+                if(!err){
+                    resp.send(200,resule);
+                }else {
+                    console.log(err)
+                }
+            }
+        )
+    },
+    //单页博客
+    // bolgshow(req,resp){
+    //     console.log(req.query.cid,"显示cid");
+    //     // let pathname = "images/uploads/"+req.file.filename;//封面图片路径
+    //     // console.log(pathname);
+    //     DBCONFIG.connect("select * from boke where b_id=?",
+    //         [req.query.cid],
+    //         (err,data)=>{
+    //             if(!err){
+    //                 resp.send(data)
+    //             }else {
+    //                 console.log(err)
+    //             }
+    //         }
+    //     )
+    // },
+
+    // 新增博客
+    addblog(req,resp){
+        console.log(req.body,"aaaaa");
+        console.log(req.file);
+        let pathname = "images/uploads/"+req.file.filename;//封面图片路径
+        console.log(pathname);
+        DBCONFIG.connect("INSERT INTO  boke(b_content , b_name, b_img ,b_date,b_author) VALUES (?,?,?,DATE_FORMAT(NOW(),'%Y-%m-%d %H:%i'),?)",
+            [req.body.content,req.body.title,pathname,req.body.author],
+            (err,data)=>{
+                if(!err){
+                    resp.redirect("http://localhost:8080/#/xurun")
+                }else {
+                    console.log(err)
+                }
+            }
+        )
+    },
+//    修改数据
+    xiugai(req,resp){
+        console.log(req.query)
+        DBCONFIG.connect("UPDATE  boke SET b_name=?,b_date=? WHERE b_id=?",
+            [req.query.gainame,req.query.gaidate,Number(req.query.id)],
+            (err,data)=>{
+                if(!err){
+                    resp.send(data);
+                }else {
+                    console.log(err)
+                }
+            })
+    },
+
+};
+module.exports=bokeController;
+
+
